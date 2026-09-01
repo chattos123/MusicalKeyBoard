@@ -1,0 +1,83 @@
+# ==============================================================================
+# Prerequisites & Build Directories
+# ==============================================================================
+build/
+build_*/
+bin/
+lib/
+out/
+install/
+_deps/
+CMakeFiles/
+
+# ==============================================================================
+# CMake Cache & Generated Files
+# ==============================================================================
+CMakeCache.txt
+cmake_install.cmake
+cmake_uninstall.cmake
+install_manifest.txt
+compile_commands.json
+Makefile
+*.ninja
+.ninja_*
+ninja.log
+*.cmake
+!CMakeLists.txt
+!cmake/*.cmake
+
+# ==============================================================================
+# Compiled Objects, Libraries & Executables
+# ==============================================================================
+*.o
+*.obj
+*.so
+*.dylib
+*.dll
+*.a
+*.lib
+*.exe
+*.exp
+*.ilk
+*.pdb
+*.idb
+
+# ==============================================================================
+# IDE & Editor Specific Files
+# ==============================================================================
+# Visual Studio / MSVC
+.vs/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.suo
+*.user
+*.db
+*.opendb
+Debug/
+Release/
+x64/
+x86/
+
+# VS Code (keep configuration files, ignore internal states)
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/settings.json
+!.vscode/c_cpp_properties.json
+*.code-workspace
+
+# JetBrains / CLion
+.idea/
+cmake-build-*/
+
+# ==============================================================================
+# OS & Environment Metadata
+# ==============================================================================
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+*.tmp
+*.bak

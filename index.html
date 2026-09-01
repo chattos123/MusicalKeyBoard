@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>61-Key Synthesizer & Sargam Workstation</title>
+    <style>
+        :root {
+            --bg: #121212;
+            --panel: #1e1e1e;
+            --panel-sub: #2a2a2a;
+            --accent: #007acc;
+            --accent-orange: #ff7700;
+            --accent-green: #28a745;
+            --accent-red: #dc3545;
+            --white-key: #fcfcfc;
+            --white-key-active: #c4c4c4;
+            --black-key: #111111;
+            --black-key-active: #3d3d3d;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            user-select: none;
+            gap: 12px;
+            padding: 10px 0;
+        }
+
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 1240px;
+            max-width: 96vw;
+        }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--panel);
+            padding: 8px 18px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .header-title {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-settings {
+            background: #2a2a35;
+            color: #ffaa00;
+            border: 1px solid #444455;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-settings:hover {
+            background: #383848;
+            color: #fff;
+            border-color: #ffaa00;
+        }
+
+        .btn-shutdown {
+            background: #8b0000;
+            color: #fff;
+            border: 1px solid #ff4d4d;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-shutdown:hover { background: #b30000; }
+
+        .panel {
+            background: var(--panel);
+            padding: 12px 16px;
+            border-radius: 8px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .panel-header {
+            font-weight: 600;
+            font-size: 12px;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 4px;
+        }
+
+        .controls-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+        }
+
+        select, input[type=number], input[type=range], button {
+            background: var(--panel-sub);
+            color: #fff;
+            border: 1px solid #444;
+            padding: 5px 8px;
+            border-radius: 5px;
+            font-size: 12px;
+            outline: none;
+        }
+
+        button {
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.15s ease;
+        }
+
+        button.start { background: var(--accent-green); border-color: #1e7e34; }
+        button.stop { background: var(--accent-red); border-color: #bd2130; }
+
+        .drum-pads {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .drum-pad {
+            background: #2d2d2d;
+            border: 1px solid #444;
+            padding: 8px;
+            text-align: center;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 11px;
+        }
+
+        .drum-pad:active {
+            background: var(--accent);
+            border-color: #66b0ff;
+        }
+
+        /* -------------------------------------------
+           90s Stereo Cassette Deck Graphic Equalizer
+        ------------------------------------------- */
+        .eq-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 12px;
+            background: linear-gradient(180deg, #151517 0%, #0d0d0f 100%);
+            padding: 8px 12px;
+            border-radius: 5px;
+            width: fit-content;
+            border: 1px solid #282830;
+            box-shadow: inset 0 1px 3px rgba(255,255,255,0.05), 0 4px 10px rgba(0,0,0,0.6);
+        }
+
+        .eq-canvas {
+            background: #050608;
+            border: 1px solid #1f2228;
+            border-radius: 3px;
+            width: 115px;
+            height: 52px;
+            box-shadow: inset 0 0 6px rgba(0,255,100,0.08);
+        }
+
+        .eq-sliders-row {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+            justify-content: flex-start;
+        }
+
+        .eq-band {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            font-size: 9px;
+            color: #8f929a;
+            font-family: 'Consolas', monospace;
+            width: 44px;
+            background: #111114;
+            padding: 4px 0 2px 0;
+            border-radius: 3px;
+            border: 1px solid #202026;
+        }
+
+        .eq-band input[type=range] {
+            -webkit-appearance: none;
+            appearance: none;
+            writing-mode: bt-lr;
+            -webkit-appearance: slider-vertical;
+            width: 32px;
+            height: 44px;
+            background: transparent;
+            padding: 0;
+            cursor: pointer;
+            margin: 2px 0;
+        }
+
+        .eq-band input[type=range]::-webkit-slider-runnable-track {
+            width: 4px;
+            background: #000000;
+            border-left: 1px solid #2f2f36;
+            border-right: 1px solid #2f2f36;
+            border-radius: 1px;
+        }
+
+        .eq-band input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 10px;
+            width: 30px;
+            background: linear-gradient(180deg, #dcdcdc 0%, #8a8a8a 45%, #ff5500 50%, #707070 55%, #4a4a4a 100%);
+            border: 1px solid #111;
+            border-radius: 1px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.8);
+            cursor: pointer;
+        }
+
+        .eq-gain-val {
+            font-family: 'Consolas', monospace;
+            font-size: 8px;
+            font-weight: bold;
+            color: #ffaa00;
+        }
+
+        .btn-deck-reset {
+            background: linear-gradient(180deg, #2c2c34 0%, #1a1a20 100%);
+            border: 1px solid #3d3d48;
+            color: #ddd;
+            padding: 4px 6px;
+            font-size: 8.5px;
+            font-family: 'Consolas', monospace;
+            letter-spacing: 0.5px;
+            border-radius: 2px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .btn-deck-reset:hover {
+            background: #383842;
+            color: #fff;
+        }
+
+        /* -------------------------------------------
+           61-Key Interactive Bed
+        ------------------------------------------- */
+        .keyboard-wrapper {
+            position: relative;
+            width: 100%;
+            overflow-x: auto;
+            background: #080808;
+            border-radius: 8px;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);
+            padding: 10px 6px;
+            box-sizing: border-box;
+        }
+
+        .keyboard-wrapper::-webkit-scrollbar { height: 8px; }
+        .keyboard-wrapper::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 4px;
+        }
+
+        .keyboard {
+            position: relative;
+            display: flex;
+            height: 195px;
+            width: fit-content;
+        }
+
+        .white-key {
+            width: 32px;
+            height: 100%;
+            background: var(--white-key);
+            border: 1px solid #bbb;
+            border-radius: 0 0 4px 4px;
+            box-sizing: border-box;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding-bottom: 5px;
+            color: #222;
+            font-weight: bold;
+            font-size: 10px;
+            cursor: pointer;
+        }
+
+        .white-key.active {
+            background: var(--white-key-active);
+            transform: translateY(2px);
+        }
+
+        .white-key .note-label {
+            font-size: 9px;
+            color: #666;
+            margin-top: 1px;
+        }
+
+        .white-key .swara-label {
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--accent-orange);
+            margin-top: 1px;
+        }
+
+        .white-key.qwerty-mapped { background: #e9f3fb; }
+        .white-key.in-scale { border-bottom: 4px solid var(--accent); }
+        .white-key.sargam-mode.in-scale { border-bottom: 4px solid var(--accent-orange); }
+        .white-key.out-scale { opacity: 0.4; }
+
+        .black-key {
+            position: absolute;
+            width: 20px;
+            height: 120px;
+            background: var(--black-key);
+            border-radius: 0 0 3px 3px;
+            z-index: 2;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding-bottom: 4px;
+            color: #ccc;
+            font-size: 8px;
+        }
+
+        .black-key.active {
+            background: var(--black-key-active);
+            transform: translateY(2px);
+        }
+
+        .black-key .swara-label {
+            font-size: 9px;
+            font-weight: bold;
+            color: #ffb066;
+            margin-top: 1px;
+        }
+
+        .black-key.qwerty-mapped { background: #253342; }
+        .black-key.in-scale { border-bottom: 3px solid #66b0ff; }
+        .black-key.sargam-mode.in-scale { border-bottom: 3px solid var(--accent-orange); }
+        .black-key.out-scale { opacity: 0.35; }
+
+        /* -------------------------------------------
+           User Settings & Preferences Modal
+        ------------------------------------------- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(3px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.open { display: flex; }
+
+        .modal-card {
+            background: #1c1c22;
+            border: 1px solid #383848;
+            border-radius: 8px;
+            width: 480px;
+            max-width: 90vw;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background: #24242e;
+            padding: 12px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333342;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 14px;
+            color: #ffaa00;
+            letter-spacing: 0.5px;
+        }
+
+        .modal-body {
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            font-size: 13px;
+        }
+
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #282834;
+        }
+
+        .setting-desc {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .setting-desc span:last-child {
+            font-size: 11px;
+            color: #888;
+        }
+
+        .modal-footer {
+            background: #18181f;
+            padding: 10px 18px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            border-top: 1px solid #282834;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="main-container">
+        <!-- Header -->
+        <div class="header-bar">
+            <div class="header-title" id="lblAppTitle">Virtual 61-Key Synthesizer & Sargam Station</div>
+            <div class="header-actions">
+                <button class="btn-settings" onclick="openSettingsModal()">
+                    <span>⚙</span> <span>Settings</span>
+                </button>
+                <button class="btn-shutdown" id="shutdownBtn" onclick="closeApplication()">Quit Application</button>
+            </div>
+        </div>
+
+        <!-- 90s Deck Graphic Equalizer & Master Output Section -->
+        <div class="panel">
+            <div class="panel-header" id="lblEqHeader">Graphic Equalizer & Master Spectrum</div>
+            <div class="eq-container">
+                <canvas id="eqCanvas" class="eq-canvas" width="115" height="52"></canvas>
+                <div class="eq-sliders-row">
+                    <div class="eq-band">
+                        <span class="eq-gain-val" id="val60">0dB</span>
+                        <input type="range" min="-12" max="12" step="1" value="0" id="eq60" oninput="updateEq(60, this.value)">
+                        <span>60Hz</span>
+                    </div>
+                    <div class="eq-band">
+                        <span class="eq-gain-val" id="val250">0dB</span>
+                        <input type="range" min="-12" max="12" step="1" value="0" id="eq250" oninput="updateEq(250, this.value)">
+                        <span>250Hz</span>
+                    </div>
+                    <div class="eq-band">
+                        <span class="eq-gain-val" id="val1k">0dB</span>
+                        <input type="range" min="-12" max="12" step="1" value="0" id="eq1k" oninput="updateEq(1000, this.value)">
+                        <span>1kHz</span>
+                    </div>
+                    <div class="eq-band">
+                        <span class="eq-gain-val" id="val4k">0dB</span>
+                        <input type="range" min="-12" max="12" step="1" value="0" id="eq4k" oninput="updateEq(4000, this.value)">
+                        <span>4kHz</span>
+                    </div>
+                    <div class="eq-band">
+                        <span class="eq-gain-val" id="val12k">0dB</span>
+                        <input type="range" min="-12" max="12" step="1" value="0" id="eq12k" oninput="updateEq(12000, this.value)">
+                        <span>12kHz</span>
+                    </div>
+                    <div class="control-group" style="flex-direction: column; justify-content: center; margin-left: 4px;">
+                        <button onclick="resetEq()" class="btn-deck-reset" id="btnResetEq">FLAT</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rhythm Section -->
+        <div class="panel">
+            <div class="panel-header" id="lblRhythmHeader">Rhythm Section (Background Drum Engine)</div>
+            <div class="controls-row">
+                <div class="control-group">
+                    <label id="lblGroove">Groove: </label>
+                    <select id="loopPattern">
+                        <option value="RockBeat" id="optRock">4/4 Rock Groove</option>
+                        <option value="FunkBeat" id="optFunk">16-Beat Funk</option>
+                        <option value="Metronome" id="optMetronome">Metronome (Teental / Metronome)</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label id="lblBpm">BPM: </label>
+                    <input type="number" id="bpm" value="110" min="40" max="220" style="width: 50px;">
+                </div>
+
+                <div class="control-group">
+                    <button id="toggleLoopBtn" class="start">Start Drum Loop</button>
+                </div>
+
+                <div class="control-group">
+                    <label id="lblMasterVol">Volume: </label>
+                    <input type="range" id="vol" min="0.1" max="1.0" step="0.05" value="0.8" style="width: 60px;">
+                </div>
+            </div>
+
+            <div class="drum-pads">
+                <div class="drum-pad" id="pad0" onclick="sendDrumHit(0)">Dha (Kick - 1)</div>
+                <div class="drum-pad" id="pad1" onclick="sendDrumHit(1)">Ta (Snare - 2)</div>
+                <div class="drum-pad" id="pad2" onclick="sendDrumHit(2)">Tin (Hat - 3)</div>
+                <div class="drum-pad" id="pad6" onclick="sendDrumHit(6)">Jhan (Crash - 4)</div>
+            </div>
+        </div>
+
+        <!-- Melodic Keyboard & Notation Controls -->
+        <div class="panel">
+            <div class="panel-header" id="lblKeyboardHeader">61-Key Keyboard & Scale Controls</div>
+            <div class="controls-row">
+                <div class="control-group">
+                    <label id="lblInstrument">Instrument: </label>
+                    <select id="melodicInstrument">
+                        <optgroup label="Keyboard & Reeds" id="grpKeys">
+                            <option value="Harmonium" selected>Indian Harmonium</option>
+                            <option value="Piano">Grand Piano</option>
+                            <option value="Kalimba">17-Key Kalimba</option>
+                        </optgroup>
+                        <optgroup label="Plucked Strings" id="grpPlucked">
+                            <option value="Guitar">Acoustic Guitar</option>
+                            <option value="BassGuitar">Electric Bass Guitar</option>
+                            <option value="Mandolin">Mandolin (Dual-Course)</option>
+                        </optgroup>
+                        <optgroup label="Bowed Strings & Winds" id="grpWinds">
+                            <option value="Saxophone">Alto Saxophone</option>
+                            <option value="Violin">Acoustic Violin (Arco)</option>
+                            <option value="Trumpet">Bb Brass Trumpet</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label id="lblNotation">Notation: </label>
+                    <select id="notationMode">
+                        <option value="Sargam" selected>Indian (Sa Re Ga Ma)</option>
+                        <option value="Western">Western (C D E F)</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label id="rootLabel">Sa (Root): </label>
+                    <select id="rootKey">
+                        <option value="0" selected>C (Safed 1)</option>
+                        <option value="1">C# / Db (Kali 1)</option>
+                        <option value="2">D (Safed 2)</option>
+                        <option value="3">D# / Eb (Kali 2)</option>
+                        <option value="4">E (Safed 3)</option>
+                        <option value="5">F (Safed 4)</option>
+                        <option value="6">F# / Gb (Kali 3)</option>
+                        <option value="7">G (Safed 5)</option>
+                        <option value="8">G# / Ab (Kali 4)</option>
+                        <option value="9">A (Safed 6)</option>
+                        <option value="10">A# / Bb (Kali 5)</option>
+                        <option value="11">B (Safed 7)</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label id="scaleLabel">Thaat / Scale: </label>
+                    <select id="scaleMode">
+                        <optgroup label="Indian Classical Thaats" id="grpThaats">
+                            <option value="Bilawal" selected>Bilawal (Shuddha / Major)</option>
+                            <option value="Kafi">Kafi (komal ga, ni)</option>
+                            <option value="Bhairav">Bhairav (komal re, dha)</option>
+                            <option value="Yaman">Kalyan / Yaman (Teevra Ma)</option>
+                            <option value="Asavari">Asavari (komal ga, dha, ni)</option>
+                            <option value="Khamaj">Khamaj (komal ni)</option>
+                            <option value="Bhairavi">Bhairavi (All Komal)</option>
+                            <option value="Todi">Todi (komal re, ga, dha, teevra ma)</option>
+                        </optgroup>
+                        <optgroup label="Western Modes" id="grpModes">
+                            <option value="Chromatic">Chromatic (All 12 Swaras)</option>
+                            <option value="PentatonicMajor">Major Pentatonic (Bhupali)</option>
+                            <option value="PentatonicMinor">Minor Pentatonic (Dhani)</option>
+                            <option value="Blues">Blues Scale</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label id="lblOctave">QWERTY Keys Octave: </label>
+                    <select id="qwertyOctave">
+                        <option value="36">Octave 2-3 (C2 - E3)</option>
+                        <option value="48">Octave 3-4 (C3 - E4)</option>
+                        <option value="60" selected>Octave 4-5 (C4 - E5 [Mid])</option>
+                        <option value="72">Octave 5-6 (C5 - E6)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 61-Key Interactive Bed -->
+            <div class="keyboard-wrapper" id="keyboardWrapper">
+                <div class="keyboard" id="keyboard"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Preferences & Settings Modal Dialog -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modalTitle">User Preferences & Settings</h3>
+                <button onclick="closeSettingsModal()" style="background:none; border:none; color:#aaa; font-size:16px; cursor:pointer;">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-row">
+                    <div class="setting-desc">
+                        <strong id="setLocaleTitle">Interface Language / Locale</strong>
+                        <span id="setLocaleSub">Sets dictionary terms for chords, scales and actions</span>
+                    </div>
+                    <select id="localeSelect" style="width: 210px;">
+                        <option value="en-US" selected>English (US) [Default]</option>
+                        <option value="en-GB">English (UK / Classical)</option>
+                        <option value="en-IN">English (India / Sargam)</option>
+                        <option value="kn-IN">ಕನ್ನಡ (Kannada / ಕರ್ನಾಟಿಕ್ & ಹಿಂದೂಸ್ತಾನಿ)</option>
+                        <option value="bn-IN">বাংলা (Bengali / ভারতীয় সঙ্গীত)</option>
+                        <option value="hi-IN">हिन्दी (Hindi / भारतीय संगीत)</option>
+                        <option value="ur-PK">اردو (Urdu / کلاسیکی موسیقی)</option>
+                        <option value="fr-FR">Français (French / Solfège)</option>
+                    </select>
+                </div>
+
+                <div class="setting-row">
+                    <div class="setting-desc">
+                        <strong id="setKeybTitle">Keyboard Overlay</strong>
+                        <span id="setKeybSub">Show QWERTY hotkeys directly on keys</span>
+                    </div>
+                    <input type="checkbox" id="showQwertyCheck" checked onchange="toggleQwertyOverlay(this.checked)">
+                </div>
+
+                <div class="setting-row">
+                    <div class="setting-desc">
+                        <strong id="setEqualizerTitle">90s Equalizer Visualizer</strong>
+                        <span id="setEqualizerSub">Real-time segmented LED frequency monitor</span>
+                    </div>
+                    <input type="checkbox" id="enableVisualizerCheck" checked>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeSettingsModal()" style="padding:6px 14px; background:#007acc; border-color:#0062a3; color:#fff;" id="btnSaveClose">Apply & Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // -----------------------------
+        // I18N Locale Dictionaries (Default: English)
+        // -----------------------------
+        const I18N = {
+            "en-US": {
+                appTitle: "Virtual 61-Key Synthesizer & Sargam Station",
+                eqHeader: "Graphic Equalizer & Master Spectrum",
+                rhythmHeader: "Rhythm Section (Background Drum Engine)",
+                keyboardHeader: "61-Key Keyboard & Scale Controls",
+                modalTitle: "User Preferences & Settings",
+                setLocaleTitle: "Interface Language / Locale",
+                setLocaleSub: "Sets dictionary terms for chords, scales and actions",
+                setKeybTitle: "Keyboard Overlay",
+                setKeybSub: "Show QWERTY hotkeys directly on keys",
+                setEqualizerTitle: "90s Equalizer Visualizer",
+                setEqualizerSub: "Real-time segmented LED frequency monitor",
+                saveClose: "Apply & Close",
+                groove: "Groove: ",
+                bpm: "BPM: ",
+                startLoop: "Start Drum Loop",
+                stopLoop: "Stop Drum Loop",
+                volume: "Volume: ",
+                instrument: "Instrument: ",
+                notation: "Notation: ",
+                saRoot: "Sa (Root): ",
+                westernRoot: "Root Key: ",
+                scaleThaat: "Thaat / Scale: ",
+                scaleWestern: "Scale Mode: ",
+                qwertyOctave: "QWERTY Keys Octave: ",
+                quit: "Quit Application",
+                flatEq: "FLAT",
+                rock: "4/4 Rock Groove",
+                funk: "16-Beat Funk",
+                metronome: "Metronome (Teental / Metronome)",
+                pad0: "Dha (Kick - 1)",
+                pad1: "Ta (Snare - 2)",
+                pad2: "Tin (Hat - 3)",
+                pad6: "Jhan (Crash - 4)"
+            },
+            "en-GB": {
+                appTitle: "Virtual 61-Key Modal Synthesiser & Sargam Console",
+                eqHeader: "Graphic Equaliser & Master Audio Spectrum",
+                rhythmHeader: "Rhythm Accompaniment (Percussion Engine)",
+                keyboardHeader: "61-Key Manual & Scale Controls",
+                modalTitle: "User Preferences & System Configuration",
+                setLocaleTitle: "Language & Regional Dialect",
+                setLocaleSub: "Configures terminology for modes, thaats and actions",
+                setKeybTitle: "Keycap Notations",
+                setKeybSub: "Display computer key assignments on manual keys",
+                setEqualizerTitle: "Analogue Equaliser Display",
+                setEqualizerSub: "Segmented LED visualiser output",
+                saveClose: "Confirm & Close",
+                groove: "Rhythm Pattern: ",
+                bpm: "Tempo (BPM): ",
+                startLoop: "Commence Loop",
+                stopLoop: "Cease Loop",
+                volume: "Master Level: ",
+                instrument: "Preset Instrument: ",
+                notation: "Notation System: ",
+                saRoot: "Fundamental (Sa): ",
+                westernRoot: "Tonic Key: ",
+                scaleThaat: "Thaat / Mode: ",
+                scaleWestern: "Diatonic Mode: ",
+                qwertyOctave: "Keyboard Octave Range: ",
+                quit: "Terminate Engine",
+                flatEq: "FLAT",
+                rock: "Common Time Rock (4/4)",
+                funk: "16-Semiquaver Funk",
+                metronome: "Metronomic Pulse (Teental)",
+                pad0: "Dha (Bass Drum - 1)",
+                pad1: "Ta (Side Drum - 2)",
+                pad2: "Tin (Hi-Hat - 3)",
+                pad6: "Jhan (Crash Cymbal - 4)"
+            },
+            "en-IN": {
+                appTitle: "Virtual 61-Key Synthesizer & Sargam Workstation",
+                eqHeader: "Graphic Equalizer & Master Spectrum",
+                rhythmHeader: "Taal / Rhythm Accompaniment (Tabla & Drums)",
+                keyboardHeader: "61-Key Harmonium & Sargam Controls",
+                modalTitle: "User Settings & Preferences",
+                setLocaleTitle: "Sargam & Language Locale",
+                setLocaleSub: "Sets Sargam saptak conventions and display modes",
+                setKeybTitle: "Computer Key Labels",
+                setKeybSub: "Show QWERTY keys directly on Harmonium keys",
+                setEqualizerTitle: "Spectrum Equalizer",
+                setEqualizerSub: "LED frequency visualization",
+                saveClose: "Save & Close",
+                groove: "Taal / Groove: ",
+                bpm: "Laya (BPM): ",
+                startLoop: "Start Taal Loop",
+                stopLoop: "Stop Taal Loop",
+                volume: "Master Volume: ",
+                instrument: "Instrument: ",
+                notation: "Swar / Notation: ",
+                saRoot: "Sur (Sa Root): ",
+                westernRoot: "Key: ",
+                scaleThaat: "Thaat / Raga Scale: ",
+                scaleWestern: "Western Scale: ",
+                qwertyOctave: "Octave (Saptak): ",
+                quit: "Exit Application",
+                flatEq: "FLAT",
+                rock: "4/4 Western Beat",
+                funk: "16-Matra Funk",
+                metronome: "Teental Metronome",
+                pad0: "Dha (Ge - 1)",
+                pad1: "Ta (Na - 2)",
+                pad2: "Tin (Tin - 3)",
+                pad6: "Jhan (Jhan - 4)"
+            },
+            "kn-IN": {
+                appTitle: "ವರ್ಚುವಲ್ 61-ಕೀ ಸಿಂಥಸೈಜರ್ ಮತ್ತು ಸರಗಮ ಸ್ಟೇಷನ್",
+                eqHeader: "ಗ್ರಾಫಿಕ್ ಈಕ್ವಲೈಜರ್ ಮತ್ತು ಮಾಸ್ಟರ್ ಸ್ಪೆಕ್ಟ್ರಮ್",
+                rhythmHeader: "ಲಯ ಮತ್ತು ರಿದಮ್ ವಿಭಾಗ (ಡ್ರಮ್ಸ್ ಮತ್ತು ತಾಳ ಎಂಜಿನ್)",
+                keyboardHeader: "61-ಕೀ ಕೀಬೋರ್ಡ್ ಮತ್ತು ಸ್ಕೇಲ್ ನಿಯಂತ್ರಣಗಳು",
+                modalTitle: "ಬಳಕೆದಾರರ ಆದ್ಯತೆಗಳು ಮತ್ತು ಸೆಟ್ಟಿಂಗ್‌ಗಳು",
+                setLocaleTitle: "ಇಂಟರ್ಫೇಸ್ ಭಾಷೆ / ಲೊಕೇಲ್",
+                setLocaleSub: "ಸ್ವರಗಳು, ರಾಗಗಳು, ಥಾಟ್ ಮತ್ತು ಕ್ರಿಯೆಗಳ ಭಾಷೆಯನ್ನು ಹೊಂದಿಸುತ್ತದೆ",
+                setKeybTitle: "ಕೀಬೋರ್ಡ್ ಓವರ್‌ಲೇ",
+                setKeybSub: "ಕೀಲಿಗಳ ಮೇಲೆ ಕಂಪ್ಯೂಟರ್ QWERTY ಅಕ್ಷರಗಳನ್ನು ತೋರಿಸಿ",
+                setEqualizerTitle: "90 ರ ದಶಕದ ಈಕ್ವಲೈಜರ್",
+                setEqualizerSub: "ನೈಜ-ಸಮಯದ ಎಲ್ಇಡಿ ಆವರ್ತನ ಸ್ಪೆಕ್ಟ್ರಮ್",
+                saveClose: "ಅನ್ವಯಿಸಿ ಮತ್ತು ಮುಚ್ಚಿ",
+                groove: "ತಾಳ / ಲಯ: ",
+                bpm: "ಲಯ ವೇಗ (BPM): ",
+                startLoop: "ತಾಳ ಪ್ರಾರಂಭಿಸಿ",
+                stopLoop: "ತಾಳ ನಿಲ್ಲಿಸಿ",
+                volume: "ಧ್ವನಿ ಪ್ರಮಾಣ: ",
+                instrument: "ವಾದ್ಯ: ",
+                notation: "ಸ್ವರಲಿಪಿ ಪದ್ಧತಿ: ",
+                saRoot: "ಷಡ್ಜ (ಸಾ ಮೂಲ): ",
+                westernRoot: "ಮೂಲ ಕೀ: ",
+                scaleThaat: "ಥಾಟ್ / ಸ್ಕೇಲ್: ",
+                scaleWestern: "ಪಾಶ್ಚಾತ್ಯ ಸ್ಕೇಲ್: ",
+                qwertyOctave: "ಕೀಬೋರ್ಡ್ ಸಪ್ತಕ: ",
+                quit: "ಅಪ್ಲಿಕೇಶನ್ ಮುಚ್ಚಿ",
+                flatEq: "ಫ್ಲಾಟ್",
+                rock: "4/4 ರಾಕ್ ಲಯ",
+                funk: "16-ಬೀಟ್ ಫಂಕ್",
+                metronome: "ಮೆಟ್ರೋನೋಮ್ (ತೀನ್‌ತಾಲ್)",
+                pad0: "ಧಾ (ಕಿಕ್ - 1)",
+                pad1: "ತಾ (ಸ್ನೇರ್ - 2)",
+                pad2: "ತಿನ್ (ಹ್ಯಾಟ್ - 3)",
+                pad6: "ಝಾಂ (ಕ್ರ್ಯಾಶ್ - 4)"
+            },
+            "bn-IN": {
+                appTitle: "ভার্চুয়াল ৬১-কী সিন্থেসাইজার ও সরগম স্টেশন",
+                eqHeader: "গ্রাফিক ইকুয়ালাইজার ও মাস্টার স্পেকট্রাম",
+                rhythmHeader: "তাল ও রিদম সেকশন (ড্রাম ও পারকাশন ইঞ্জিন)",
+                keyboardHeader: "৬১-কী কীবোর্ড ও স্কেল নিয়ন্ত্রণ",
+                modalTitle: "ব্যবহারকারীর পছন্দ ও সেটিংস",
+                setLocaleTitle: "ইন্টারফেস ভাষা / লোকেল",
+                setLocaleSub: "স্বর, রাগ, ঠাট ও নির্দেশনার ভাষা নির্ধারণ করুন",
+                setKeybTitle: "কীবোর্ড হট-কী ওভারলে",
+                setKeybSub: "কীবোর্ড কী-এর ওপর QWERTY অক্ষর প্রদর্শন করুন",
+                setEqualizerTitle: "৯০-এর দশকের ইকুয়ালাইজার",
+                setEqualizerSub: "রিয়েল-টাইম এলইডি ফ্রিকোয়েন্সি স্পেকট্রাম",
+                saveClose: "প্রয়োগ ও বন্ধ করুন",
+                groove: "তাল / গ্রুভ: ",
+                bpm: "লয় (BPM): ",
+                startLoop: "তাল শুরু করুন",
+                stopLoop: "তাল বন্ধ করুন",
+                volume: "ভলিউম: ",
+                instrument: "বাদ্যযন্ত্র: ",
+                notation: "স্বরলিপি পদ্ধতি: ",
+                saRoot: "সা (মূল সুর): ",
+                westernRoot: "রুট কী: ",
+                scaleThaat: "ঠাট / স্কেল: ",
+                scaleWestern: "ওয়েস্টার্ন স্কেল: ",
+                qwertyOctave: "কম্পিউটার কীবোর্ড সপ্তক: ",
+                quit: "অ্যাপ্লিকেশন বন্ধ করুন",
+                flatEq: "ফ্ল্যাট",
+                rock: "৪/৪ রক গ্রুভ",
+                funk: "১৬-মাত্রার ফাঙ্ক",
+                metronome: "মেট্রোনোম (তিনতাল)",
+                pad0: "ধা (কিক - ১)",
+                pad1: "তা (স্নেয়ার - ২)",
+                pad2: "তিন (হ্যাট - ৩)",
+                pad6: "ঝাঁ (ক্র্যাশ - ৪)"
+            },
+            "hi-IN": {
+                appTitle: "वर्चुअल 61-कुंजी सिंथेसाइज़र एवं सरगम स्टेशन",
+                eqHeader: "ग्राफिक इक्वलाइज़र एवं मास्टर स्पेक्ट्रम",
+                rhythmHeader: "ताल एवं लय अनुभाग (ड्रम व तबला इंजन)",
+                keyboardHeader: "61-कुंजी कीबोर्ड एवं थाट नियंत्रण",
+                modalTitle: "उपयोगकर्ता प्राथमिकताएं एवं सेटिंग्स",
+                setLocaleTitle: "इंटरफ़ेस भाषा / लोकेल",
+                setLocaleSub: "स्वर, राग, थाट और नियंत्रणों की भाषा सेट करें",
+                setKeybTitle: "कीबोर्ड हॉट-की ओवरले",
+                setKeybSub: "हार्मोनियम कीज़ पर कंप्यूटर QWERTY कुंजियाँ दिखाएं",
+                setEqualizerTitle: "90 के दशक का इक्वलाइज़र",
+                setEqualizerSub: "रियल-टाइम एलईडी आवृत्ति स्पेक्ट्रम",
+                saveClose: "लागू करें और बंद करें",
+                groove: "ताल / ग्रूव्: ",
+                bpm: "लय (BPM): ",
+                startLoop: "ताल शुरू करें",
+                stopLoop: "ताल रोकें",
+                volume: "मास्टर वॉल्यूम: ",
+                instrument: "वाद्य यंत्र: ",
+                notation: "स्वरलिपि पद्धति: ",
+                saRoot: "सा (आधार स्वर): ",
+                westernRoot: "रूट की: ",
+                scaleThaat: "थाट / स्केल: ",
+                scaleWestern: "वेस्टर्न स्केल: ",
+                qwertyOctave: "कंप्यूटर कीबोर्ड सप्तक: ",
+                quit: "एप्लिकेशन बंद करें",
+                flatEq: "फ्लैट",
+                rock: "4/4 रॉक बीट",
+                funk: "16-मात्रा फंक",
+                metronome: "मेट्रोनोम (तीनताल)",
+                pad0: "धा (किक - 1)",
+                pad1: "ता (स्नेयर - 2)",
+                pad2: "तिन (हैट - 3)",
+                pad6: "झां (क्रैश - 4)"
+            },
+            "ur-PK": {
+                appTitle: "ورچوئل 61-کی سنتھیسائزر اور سرگم اسٹیشن",
+                eqHeader: "گرافک ایکولائزر اور ماسٹر اسپیکٹرم",
+                rhythmHeader: "تال اور لے کا شعبہ (ڈرم و طبلہ انجن)",
+                keyboardHeader: "61-کی بورڈ اور ٹھاٹ کنٹرول",
+                modalTitle: "صارف کی ترجیحات اور ترتیبات",
+                setLocaleTitle: "زبان / لوکل",
+                setLocaleSub: "سروں، راگوں، ٹھاٹوں اور اعمال کی زبان منتخب کریں",
+                setKeybTitle: "کی بورڈ ہاٹ کیز",
+                setKeybSub: "کیز کے اوپر کمپیوٹر QWERTY حروف دکھائیں",
+                setEqualizerTitle: "90 کی دہائی کا ایکولائزر",
+                setEqualizerSub: "ایل ای ڈی فریکوئنسی مانیٹر",
+                saveClose: "لاگو کریں اور بند کریں",
+                groove: "تال / لے: ",
+                bpm: "رفتار (BPM): ",
+                startLoop: "تال شروع کریں",
+                stopLoop: "تال روکیں",
+                volume: "والیوم: ",
+                instrument: "ساز: ",
+                notation: "سرگم کا نظام: ",
+                saRoot: "سا (بنیادی سر): ",
+                westernRoot: "روٹ کی: ",
+                scaleThaat: "ٹھاٹ / راگ: ",
+                scaleWestern: "مغربی اسکیل: ",
+                qwertyOctave: "کی بورڈ سپتک: ",
+                quit: "ایپلیکیشن بند کریں",
+                flatEq: "فلیٹ",
+                rock: "4/4 راک بیٹ",
+                funk: "16-ماپ فنک",
+                metronome: "میٹرونوم (تین تال)",
+                pad0: "دھا (کک - 1)",
+                pad1: "تا (سنیئر - 2)",
+                pad2: "تن (ہیٹ - 3)",
+                pad6: "جھان (کریش - 4)"
+            },
+            "fr-FR": {
+                appTitle: "Synthétiseur Virtuel 61 Touches & Console Modale",
+                eqHeader: "Égaliseur Graphique & Spectre Principal",
+                rhythmHeader: "Section Rythmique (Moteur de Percussions)",
+                keyboardHeader: "Clavier 61 Touches & Contrôle des Gammes",
+                modalTitle: "Préférences Utilisateur & Paramètres",
+                setLocaleTitle: "Langue de l'Interface / Paramètres Régionaux",
+                setLocaleSub: "Définit la terminologie pour les accords, modes et actions",
+                setKeybTitle: "Incrustation du Clavier",
+                setKeybSub: "Afficher les raccourcis QWERTY sur les touches",
+                setEqualizerTitle: "Visualiseur Égaliseur Années 90",
+                setEqualizerSub: "Affichage du spectre de fréquence par segments LED",
+                saveClose: "Appliquer et Fermer",
+                groove: "Rythme: ",
+                bpm: "Tempo (BPM): ",
+                startLoop: "Démarrer la Boucle",
+                stopLoop: "Arrêter la Boucle",
+                volume: "Volume Principal: ",
+                instrument: "Instrument: ",
+                notation: "Système de Notation: ",
+                saRoot: "Fondamentale (Sa): ",
+                westernRoot: "Tonique: ",
+                scaleThaat: "Thaat / Mode: ",
+                scaleWestern: "Gamme Diatonique: ",
+                qwertyOctave: "Octave du Clavier: ",
+                quit: "Quitter l'Application",
+                flatEq: "PLAT",
+                rock: "Rock 4/4 Standard",
+                funk: "Funk 16-Temps",
+                metronome: "Métronome (Teental)",
+                pad0: "Dha (Grosse Caisse - 1)",
+                pad1: "Ta (Caisse Claire - 2)",
+                pad2: "Tin (Charleston - 3)",
+                pad6: "Jhan (Cymbale Crash - 4)"
+            }
+        };
+
+        const SWARA_SCRIPTS = {
+            "en": ["Sa", "re", "Re", "ga", "Ga", "ma", "Ma'", "Pa", "dha", "Dha", "ni", "Ni"],
+            "kn-IN": ["ಸಾ", "ರಿ॒", "ರಿ", "ಗ॒", "ಗ", "ಮ", "ಮ॑", "ಪ", "ಧ॒", "ಧ", "ನಿ॒", "ನಿ"],
+            "bn-IN": ["সা", "ঋ", "রে", "জ্ঞ", "গা", "ম", "হ্ম'", "পা", "দা", "ধা", "ণী", "নি"],
+            "hi-IN": ["सा", "रे॒", "रे", "ग॒", "ग", "म", "म॑", "प", "ध॒", "ध", "नि॒", "नि"],
+            "ur-PK": ["سا", "رے", "رے", "گا", "گا", "ما", "ما", "پا", "دھا", "دھا", "نی", "نی"],
+            "fr-FR": ["Do", "Do#", "Ré", "Ré#", "Mi", "Fa", "Fa#", "Sol", "Sol#", "La", "La#", "Si"]
+        };
+
+        const SCALE_INTERVALS = {
+            "Bilawal":          [0, 2, 4, 5, 7, 9, 11],
+            "Kafi":             [0, 2, 3, 5, 7, 9, 10],
+            "Bhairav":          [0, 1, 4, 5, 7, 8, 11],
+            "Yaman":            [0, 2, 4, 6, 7, 9, 11],
+            "Asavari":          [0, 2, 3, 5, 7, 8, 10],
+            "Khamaj":           [0, 2, 4, 5, 7, 9, 10],
+            "Bhairavi":         [0, 1, 3, 5, 7, 8, 10],
+            "Todi":             [0, 1, 3, 6, 7, 8, 11],
+            "Chromatic":        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+            "PentatonicMajor":  [0, 2, 4, 7, 9],
+            "PentatonicMinor":  [0, 3, 5, 7, 10],
+            "Blues":            [0, 3, 5, 6, 7, 10]
+        };
+
+        const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+        const BLACK_KEY_PITCHES = [1, 3, 6, 8, 10];
+
+        const QWERTY_OFFSETS = [
+            { offset: 0,  key: "a" },
+            { offset: 1,  key: "w" },
+            { offset: 2,  key: "s" },
+            { offset: 3,  key: "e" },
+            { offset: 4,  key: "d" },
+            { offset: 5,  key: "f" },
+            { offset: 6,  key: "t" },
+            { offset: 7,  key: "g" },
+            { offset: 8,  key: "y" },
+            { offset: 9,  key: "h" },
+            { offset: 10, key: "u" },
+            { offset: 11, key: "j" },
+            { offset: 12, key: "k" },
+            { offset: 13, key: "o" },
+            { offset: 14, key: "l" },
+            { offset: 15, key: "p" },
+            { offset: 16, key: ";" }
+        ];
+
+        const keyboard = document.getElementById("keyboard");
+        const instSelect = document.getElementById("melodicInstrument");
+        const notationModeSelect = document.getElementById("notationMode");
+        const rootKeySelect = document.getElementById("rootKey");
+        const scaleModeSelect = document.getElementById("scaleMode");
+        const qwertyOctaveSelect = document.getElementById("qwertyOctave");
+        const volSlider = document.getElementById("vol");
+        const loopBtn = document.getElementById("toggleLoopBtn");
+        const loopPattern = document.getElementById("loopPattern");
+        const bpmInput = document.getElementById("bpm");
+        const localeSelect = document.getElementById("localeSelect");
+        const settingsModal = document.getElementById("settingsModal");
+
+        let isLooping = false;
+        let isMouseDown = false;
+        let showQwertyLabels = true;
+        const activeKeyElements = new Set();
+        let keyElements = [];
+
+        // Equalizer State
+        const eqGains = { 60: 0, 250: 0, 1000: 0, 4000: 0, 12000: 0 };
+        const canvas = document.getElementById("eqCanvas");
+        const ctx = canvas.getContext("2d");
+        const spectrumBins = new Array(14).fill(2);
+
+        // -----------------------------
+        // User Settings Modal Controls
+        // -----------------------------
+        function openSettingsModal() {
+            settingsModal.classList.add("open");
+        }
+
+        function closeSettingsModal() {
+            settingsModal.classList.remove("open");
+            saveUserSettings();
+        }
+
+        function toggleQwertyOverlay(show) {
+            showQwertyLabels = show;
+            rebuildKeyboard();
+        }
+
+        function saveUserSettings() {
+            const settings = {
+                locale: localeSelect.value,
+                showQwerty: document.getElementById("showQwertyCheck").checked,
+                enableVisualizer: document.getElementById("enableVisualizerCheck").checked
+            };
+            localStorage.setItem("user_synthesizer_settings", JSON.stringify(settings));
+        }
+
+        function loadUserSettings() {
+            const raw = localStorage.getItem("user_synthesizer_settings");
+            let settings = { locale: "en-US", showQwerty: true, enableVisualizer: true };
+            if (raw) {
+                try { settings = Object.assign(settings, JSON.parse(raw)); } catch(e){}
+            }
+            localeSelect.value = settings.locale || "en-US";
+            document.getElementById("showQwertyCheck").checked = settings.showQwerty;
+            document.getElementById("enableVisualizerCheck").checked = settings.enableVisualizer;
+            showQwertyLabels = settings.showQwerty;
+            applyLocale(settings.locale || "en-US");
+        }
+
+        // Apply Locale Strings
+        function applyLocale(locale) {
+            const strings = I18N[locale] || I18N["en-US"];
+            document.getElementById("lblAppTitle").innerText = strings.appTitle;
+            document.getElementById("lblEqHeader").innerText = strings.eqHeader;
+            document.getElementById("lblRhythmHeader").innerText = strings.rhythmHeader;
+            document.getElementById("lblKeyboardHeader").innerText = strings.keyboardHeader;
+            document.getElementById("modalTitle").innerText = strings.modalTitle;
+            document.getElementById("setLocaleTitle").innerText = strings.setLocaleTitle;
+            document.getElementById("setLocaleSub").innerText = strings.setLocaleSub;
+            document.getElementById("setKeybTitle").innerText = strings.setKeybTitle;
+            document.getElementById("setKeybSub").innerText = strings.setKeybSub;
+            document.getElementById("setEqualizerTitle").innerText = strings.setEqualizerTitle;
+            document.getElementById("setEqualizerSub").innerText = strings.setEqualizerSub;
+            document.getElementById("btnSaveClose").innerText = strings.saveClose;
+            document.getElementById("lblGroove").innerText = strings.groove;
+            document.getElementById("lblBpm").innerText = strings.bpm;
+            document.getElementById("lblMasterVol").innerText = strings.volume;
+            document.getElementById("lblInstrument").innerText = strings.instrument;
+            document.getElementById("lblNotation").innerText = strings.notation;
+            document.getElementById("lblOctave").innerText = strings.qwertyOctave;
+            document.getElementById("btnResetEq").innerText = strings.flatEq;
+            document.getElementById("optRock").innerText = strings.rock;
+            document.getElementById("optFunk").innerText = strings.funk;
+            document.getElementById("optMetronome").innerText = strings.metronome;
+            document.getElementById("pad0").innerText = strings.pad0;
+            document.getElementById("pad1").innerText = strings.pad1;
+            document.getElementById("pad2").innerText = strings.pad2;
+            document.getElementById("pad6").innerText = strings.pad6;
+            document.getElementById("shutdownBtn").innerText = strings.quit;
+            
+            loopBtn.innerText = isLooping ? strings.stopLoop : strings.startLoop;
+
+            const isSargam = (notationModeSelect.value === "Sargam");
+            document.getElementById("rootLabel").innerText = isSargam ? strings.saRoot : strings.westernRoot;
+            document.getElementById("scaleLabel").innerText = isSargam ? strings.scaleThaat : strings.scaleWestern;
+            
+            rebuildKeyboard();
+        }
+
+        localeSelect.addEventListener("change", (e) => {
+            applyLocale(e.target.value);
+            saveUserSettings();
+        });
+
+        // -----------------------------
+        // Equalizer & Spectrum Visualizer
+        // -----------------------------
+        function updateEq(freq, val) {
+            eqGains[freq] = parseFloat(val);
+            const labelMap = { 60: "val60", 250: "val250", 1000: "val1k", 4000: "val4k", 12000: "val12k" };
+            document.getElementById(labelMap[freq]).innerText = (val > 0 ? "+" : "") + val + "dB";
+        }
+
+        function resetEq() {
+            [60, 250, 1000, 4000, 12000].forEach(f => {
+                const slider = document.getElementById(f === 1000 ? "eq1k" : (f === 4000 ? "eq4k" : (f === 12000 ? "eq12k" : "eq" + f)));
+                if (slider) slider.value = 0;
+                updateEq(f, 0);
+            });
+        }
+
+        function stimulateSpectrum(freqRatio) {
+            if (!document.getElementById("enableVisualizerCheck").checked) return;
+            const targetBin = Math.min(spectrumBins.length - 1, Math.floor(freqRatio * spectrumBins.length));
+            spectrumBins[targetBin] = Math.min(48, spectrumBins[targetBin] + 40);
+            if (targetBin > 0) spectrumBins[targetBin - 1] += 18;
+            if (targetBin < spectrumBins.length - 1) spectrumBins[targetBin + 1] += 18;
+        }
+
+        function drawSpectrum() {
+            ctx.fillStyle = "#050608";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const numSegments = 9;
+            const segmentHeight = 4;
+            const segmentSpacing = 1.5;
+            const barWidth = (canvas.width / spectrumBins.length) - 2;
+
+            for (let i = 0; i < spectrumBins.length; ++i) {
+                spectrumBins[i] = Math.max(2, spectrumBins[i] * 0.88);
+                
+                const activeSegments = Math.floor((spectrumBins[i] / 50.0) * numSegments);
+                const x = i * (barWidth + 2) + 2;
+
+                for (let s = 0; s < numSegments; ++s) {
+                    const y = canvas.height - ((s + 1) * (segmentHeight + segmentSpacing));
+                    
+                    if (s < activeSegments) {
+                        if (s >= 7) ctx.fillStyle = "#ff2222";
+                        else if (s >= 5) ctx.fillStyle = "#ffaa00";
+                        else ctx.fillStyle = "#00e676";
+                    } else {
+                        ctx.fillStyle = "rgba(255, 255, 255, 0.04)";
+                    }
+                    ctx.fillRect(x, y, barWidth, segmentHeight);
+                }
+            }
+            requestAnimationFrame(drawSpectrum);
+        }
+        drawSpectrum();
+
+        // -----------------------------
+        // Audio Engine Trigger Handlers
+        // -----------------------------
+        function midiToFreq(midi) {
+            return 440.0 * Math.pow(2.0, (midi - 69.0) / 12.0);
+        }
+
+        function sendPlay(freq) {
+            const inst = instSelect.value;
+            const vol = volSlider.value;
+            stimulateSpectrum(Math.min(1.0, freq / 2000.0));
+            fetch(`/play?inst=${inst}&freq=${freq}&vol=${vol}&dur=1.2`, {
+                method: "GET",
+                keepalive: true,
+                cache: "no-store",
+                priority: "high"
+            }).catch(() => {});
+        }
+
+        function sendDrumHit(pieceId) {
+            stimulateSpectrum(pieceId === 0 ? 0.08 : 0.45);
+            fetch(`/drumHit?piece=${pieceId}`, {
+                method: "GET",
+                keepalive: true,
+                cache: "no-store",
+                priority: "high"
+            }).catch(() => {});
+        }
+
+        function clearAllActiveKeys() {
+            activeKeyElements.forEach(el => el.classList.remove("active"));
+            activeKeyElements.clear();
+        }
+
+        function activateKeyElement(el, freq) {
+            if (!el || activeKeyElements.has(el)) return;
+            el.classList.add("active");
+            activeKeyElements.add(el);
+            sendPlay(freq);
+        }
+
+        function deactivateKeyElement(el) {
+            if (!el) return;
+            el.classList.remove("active");
+            activeKeyElements.delete(el);
+        }
+
+        function rebuildKeyboard() {
+            clearAllActiveKeys();
+            keyboard.innerHTML = "";
+            keyElements = [];
+
+            const currentLocale = localeSelect.value || "en-US";
+            const swaraList = SWARA_SCRIPTS[currentLocale] || SWARA_SCRIPTS["en"];
+
+            const isSargam = (notationModeSelect.value === "Sargam");
+            const rootOffset = parseInt(rootKeySelect.value, 10);
+            const scaleIntervals = SCALE_INTERVALS[scaleModeSelect.value] || SCALE_INTERVALS["Bilawal"];
+            const qwertyBase = parseInt(qwertyOctaveSelect.value, 10);
+
+            let whiteOffset = 0;
+            const whiteKeyWidth = 32;
+
+            for (let midi = 36; midi <= 96; ++midi) {
+                const pitchClass = (midi % 12);
+                const isBlack = BLACK_KEY_PITCHES.includes(pitchClass);
+                const freq = midiToFreq(midi);
+
+                const swaraDegree = (pitchClass - rootOffset + 12) % 12;
+                const inScale = scaleIntervals.includes(swaraDegree);
+                const westernName = NOTE_NAMES[pitchClass] + Math.floor(midi / 12 - 1);
+
+                let swaraText = swaraList[swaraDegree];
+                if (midi >= 72) {
+                    swaraText += "̇";
+                } else if (midi < 60) {
+                    swaraText += "̣";
+                }
+
+                const qwertyItem = QWERTY_OFFSETS.find(q => (qwertyBase + q.offset) === midi);
+                const qwertyKey = (qwertyItem && showQwertyLabels) ? qwertyItem.key : "";
+
+                const el = document.createElement("div");
+                el.dataset.freq = freq.toFixed(2);
+                el.dataset.midi = midi;
+
+                const modeClass = isSargam ? "sargam-mode" : "";
+                const qwertyClass = qwertyKey ? "qwerty-mapped" : "";
+
+                if (!isBlack) {
+                    el.className = `white-key ${modeClass} ${qwertyClass} ${inScale ? 'in-scale' : 'out-scale'}`;
+                    const topLabel = qwertyKey ? qwertyKey.toUpperCase() : "";
+                    if (isSargam) {
+                        el.innerHTML = `<span>${topLabel}</span><span class="swara-label">${swaraText}</span><span class="note-label">${westernName}</span>`;
+                    } else {
+                        el.innerHTML = `<span>${topLabel}</span><span class="note-label">${westernName}</span>`;
+                    }
+                    keyboard.appendChild(el);
+                    whiteOffset += whiteKeyWidth;
+                } else {
+                    el.className = `black-key ${modeClass} ${qwertyClass} ${inScale ? 'in-scale' : 'out-scale'}`;
+                    el.style.left = (whiteOffset - 10) + "px";
+                    const topLabel = qwertyKey ? qwertyKey.toUpperCase() : "";
+                    if (isSargam) {
+                        el.innerHTML = `<span>${topLabel}</span><span class="swara-label">${swaraText}</span>`;
+                    } else {
+                        el.innerHTML = `<span>${topLabel}</span>`;
+                    }
+                    keyboard.appendChild(el);
+                }
+
+                el.addEventListener("mousedown", (e) => {
+                    e.preventDefault();
+                    activateKeyElement(el, freq);
+                });
+
+                el.addEventListener("mouseenter", () => {
+                    if (isMouseDown) activateKeyElement(el, freq);
+                });
+
+                el.addEventListener("mouseleave", () => deactivateKeyElement(el));
+                el.addEventListener("mouseup", () => deactivateKeyElement(el));
+
+                keyElements.push({ el, freq, midi, qwertyKey });
+            }
+        }
+
+        notationModeSelect.addEventListener("change", () => {
+            const loc = localeSelect.value;
+            const strings = I18N[loc] || I18N["en-US"];
+            const isSargam = (notationModeSelect.value === "Sargam");
+            document.getElementById("rootLabel").innerText = isSargam ? strings.saRoot : strings.westernRoot;
+            document.getElementById("scaleLabel").innerText = isSargam ? strings.scaleThaat : strings.scaleWestern;
+            rebuildKeyboard();
+        });
+
+        rootKeySelect.addEventListener("change", rebuildKeyboard);
+        scaleModeSelect.addEventListener("change", rebuildKeyboard);
+        qwertyOctaveSelect.addEventListener("change", () => {
+            rebuildKeyboard();
+            const baseMidi = parseInt(qwertyOctaveSelect.value, 10);
+            const target = keyElements.find(k => k.midi === baseMidi);
+            if (target && target.el) {
+                target.el.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+            }
+        });
+
+        function closeApplication() {
+            if (confirm("Are you sure you want to stop the music engine and exit?")) {
+                navigator.sendBeacon("/shutdown");
+                document.body.innerHTML = `
+                    <div style="text-align:center; margin-top:20vh;">
+                        <h2 style="color:#28a745;">Application Terminated</h2>
+                        <p style="color:#aaa;">Audio subsystem and backend server have exited cleanly. You can now close this tab.</p>
+                    </div>`;
+                setTimeout(() => window.close(), 1500);
+            }
+        }
+
+        window.addEventListener("beforeunload", () => {
+            navigator.sendBeacon("/shutdown");
+        });
+
+        loopBtn.addEventListener("click", () => {
+            isLooping = !isLooping;
+            const loc = localeSelect.value;
+            const strings = I18N[loc] || I18N["en-US"];
+            if (isLooping) {
+                loopBtn.className = "stop";
+                loopBtn.innerText = strings.stopLoop;
+                fetch(`/loop?action=start&pattern=${encodeURIComponent(loopPattern.value)}&bpm=${encodeURIComponent(bpmInput.value)}`, {
+                    keepalive: true, cache: "no-store"
+                });
+            } else {
+                loopBtn.className = "start";
+                loopBtn.innerText = strings.startLoop;
+                fetch(`/loop?action=stop`, { keepalive: true, cache: "no-store" });
+            }
+        });
+
+        window.addEventListener("mousedown", () => { isMouseDown = true; });
+        window.addEventListener("mouseup", () => {
+            isMouseDown = false;
+            clearAllActiveKeys();
+        });
+        window.addEventListener("blur", clearAllActiveKeys);
+
+        // QWERTY Keyboard Handling
+        window.addEventListener("keydown", (e) => {
+            if (document.activeElement && document.activeElement.tagName === "INPUT" && document.activeElement.type === "number") {
+                return;
+            }
+
+            if (document.activeElement && document.activeElement.tagName === "SELECT") {
+                document.activeElement.blur();
+            }
+
+            const k = e.key.toLowerCase();
+            const isDrumKey = ['1', '2', '3', '4'].includes(k);
+            const keyObj = keyElements.find(item => item.qwertyKey === k);
+
+            if (isDrumKey || keyObj) {
+                e.preventDefault();
+            }
+
+            if (e.repeat) return;
+
+            if (k === '1') { sendDrumHit(0); return; }
+            if (k === '2') { sendDrumHit(1); return; }
+            if (k === '3') { sendDrumHit(2); return; }
+            if (k === '4') { sendDrumHit(6); return; }
+
+            if (keyObj) {
+                activateKeyElement(keyObj.el, keyObj.freq);
+            }
+        });
+
+        window.addEventListener("keyup", (e) => {
+            const k = e.key.toLowerCase();
+            const keyObj = keyElements.find(item => item.qwertyKey === k);
+            if (keyObj) {
+                deactivateKeyElement(keyObj.el);
+            }
+        });
+
+        // Initialize User Settings & UI Layout
+        loadUserSettings();
+
+        setTimeout(() => {
+            const midKey = keyElements.find(k => k.midi === 60);
+            if (midKey && midKey.el) {
+                midKey.el.scrollIntoView({ inline: 'center' });
+            }
+        }, 100);
+    </script>
+</body>
+
+</html>

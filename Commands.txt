@@ -1,0 +1,188 @@
+Simple cmake command:
+byuild: cmake --build build --config Debug
+Run: ./build/bin/MusicPlayerTesterApp
+
+**1. Configuration & Generation Mode (`cmake -S ... -B ...`)**
+
+* **Basic configuration:**
+`cmake -S . -B build`
+* **Specify build type (Single-config generators like Ninja/Make):**
+`cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug`
+`cmake -S . -B build -DCMAKE_BUILD_TYPE=Release`
+`cmake -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo`
+* **Specify a build generator:**
+`cmake -S . -B build -G "Ninja"`
+`cmake -S . -B build -G "Visual Studio 17 2022" -A x64`
+`cmake -S . -B build -G "MinGW Makefiles"`
+`cmake -S . -B build -G "Unix Makefiles"`
+* **Set install destination prefix:**
+`cmake -S . -B build -DCMAKE_INSTALL_PREFIX="/opt/myapp"`
+* **Pass custom project cache options/flags:**
+`cmake -S . -B build -DBUILD_SHARED_LIBS=ON -DENABLE_TESTS=OFF`
+* **Export compile commands (for clangd / VS Code IntelliSense):**
+`cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON`
+* **Fresh configuration (wipe cache/rules before configuring):**
+`cmake -S . -B build --fresh`
+
+---
+
+**2. Build Mode (`cmake --build ...`)**
+
+* **Basic build:**
+`cmake --build build`
+* **Multi-configuration generators (Visual Studio, Xcode):**
+`cmake --build build --config Debug`
+`cmake --build build --config Release`
+`cmake --build build --config RelWithDebInfo`
+* **Parallel compilation (multi-core acceleration):**
+`cmake --build build --parallel`
+`cmake --build build -j 8`
+* **Build a specific target only:**
+`cmake --build build --target MusicPlayerTesterApp`
+`cmake --build build --target MusicPlayerSystem`
+* **Clean previous artifacts:**
+`cmake --build build --target clean`
+`cmake --build build --clean-first`
+* **Verbose output (display raw compiler and linker commands):**
+`cmake --build build --verbose`
+`cmake --build build -v`
+
+---
+
+**3. Installation Mode (`cmake --install ...`)**
+
+* **Standard installation to configured `CMAKE_INSTALL_PREFIX`:**
+`cmake --install build`
+* **Install specific configuration:**
+`cmake --install build --config Release`
+* **Override destination prefix at install time:**
+`cmake --install build --prefix "C:/Program Files/SMusicSystem"`
+* **Staging install using `DESTDIR` (Linux/macOS packaging):**
+`DESTDIR=/tmp/stage cmake --install build`
+* **Install a specific component only:**
+`cmake --install build --component SDK_Headers`
+* **Strip debug symbols during installation (POSIX shared libs/binaries):**
+`cmake --install build --strip`
+
+---
+
+**4. Testing Mode (`ctest` / `--target test`)**
+
+* **Run test suite via CMake build command:**
+`cmake --build build --target test`
+* **Direct CTest execution:**
+`ctest --test-dir build`
+* **Run tests with verbose failure details:**
+`ctest --test-dir build --output-on-failure`
+* **Run tests matching a regex pattern:**
+`ctest --test-dir build -R "AudioSystem.*"`
+* **Run tests in parallel:**
+`ctest --test-dir build -j 4`
+
+---
+
+**5. Packaging Mode (`cpack`)**
+
+* **Generate installer packages (ZIP, NSIS, DEB, RPM, TGZ):**
+`cpack --config build/CPackConfig.cmake`
+`cpack --config build/CPackSourceConfig.cmake`
+* **Specify package generator:**
+`cpack -G NSIS -C Release`
+`cpack -G ZIP -C Release`
+`cpack -G TGZ`
+
+---
+
+**6. Cross-Platform Command-Line Tools (`cmake -E ...`)**
+
+* **Remove files or directories safely:**
+`cmake -E rm -rf build`
+* **Copy files or directories:**
+`cmake -E copy src_file dest_file`
+`cmake -E copy_directory dir1 dir2`
+* **Create directories:**
+`cmake -E make_directory path/to/dir`
+* **Create symlinks or hard links:**
+`cmake -E create_symlink target linkname`
+* **Calculate checksums (MD5, SHA256):**
+`cmake -E sha256sum build/bin/MusicPlayerTesterApp.exe`
+* **Time a process execution:**
+`cmake -E time cmake --build build`
+* **Inspect environment variables:**
+`cmake -E environment`
+
+---
+
+**7. Script & Query Mode**
+
+* **Run a standalone CMake script file:**
+`cmake -P script.cmake`
+* **List available CMake generators on the system:**
+`cmake --help`
+* **Inspect build system cache variables:**
+`cmake -B build -L`
+`cmake -B build -LH`
+`cmake -B build -LAH`
+
+ps1
+# Standard release build & installation
+.\build_and_install.ps1
+
+# Clean build and immediately launch the installed application
+.\build_and_install.ps1 -Clean -RunAppAfterInstall
+
+#custom path
+.\build_and_install.ps1 -InstallPrefix "C:\Program Files\SMusicSystem"
+
+#custom path uninstall
+.\build_and_install.ps1 -Action Uninstall -InstallPrefix "C:\Program Files\SMusicSystem"
+
+#run
+.\build_and_install.ps1 -InstallPrefix "C:\Program Files\SMusicSystem" -RunAppAfterInstall
+
+bash
+
+Usage Examples
+Build default targets (Release):
+./build_and_install.sh
+
+Install to default local prefix (./install):
+./build_and_install.sh install
+
+Rebuild only:
+./build_and_install.sh rebuild --config Debug
+./build_and_install.sh rebuild --config Release
+
+Clean and Rebuild in Debug mode and run immediately:
+./build_and_install.sh rebuild --config Debug --run
+
+Install to custom path (e.g., /opt/MusicPlayerSDK):
+
+./build_and_install.sh install --prefix /opt/MusicPlayerSDK
+
+Uninstall all installed assets and SDK headers/binaries:
+./build_and_install.sh uninstall
+
+Custom path installation
+Option 2: Using Bash / Git Bash
+Open Git Bash as Administrator.
+
+Navigate to your project directory and run Bash
+./build_and_install.sh install --prefix "/c/Program Files/SMusicSystem"
+
+Examples:
+  # Standard build and install to ./install
+  ./build_and_install.sh install
+
+  # Rebuild in Debug mode and run immediately
+  ./build_and_install.sh rebuild --config Debug --run
+
+  # Install to a system directory
+  ./build_and_install.sh install --prefix "/c/Program Files/SMusicSystem"
+
+  # Uninstall deployed application and SDK
+  ./build_and_install.sh uninstall --prefix "/c/Program Files/SMusicSystem"
+
+  # Clean build artifacts
+  ./build_and_install.sh clean
+
