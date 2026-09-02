@@ -1,3 +1,4 @@
+```markdown
 # Architecture & Design Document: MusicPlayerTesterApp
 
 `MusicPlayerTesterApp` hosts the HTTP server and real-time dispatcher for the **Virtual 61-Key Synthesizer & Sargam Workstation**. It handles platform-independent socket communications, HTTP protocol decoding, static asset delivery, and multi-threaded audio task scheduling.
@@ -93,18 +94,17 @@ classDiagram
     MainDispatcher --> ThreadPool : enqueues non-blocking audio tasks
     MainDispatcher --> DrumLoopEngine : triggers rhythm sequencer
     MainDispatcher --> InstrumentManager : resolves sound models
+
 ```
 
 ### Class & Module Responsibilities
 
-* **`SocketPlatform.h`**: Encapsulates OS differences between Windows (`winsock2.h`, `ws2_32.lib`) and Linux/POSIX (`<sys/socket.h>`, `<unistd.h>`). It standardizes the socket handle type as `socket_t` and provides cross-platform helpers like `CloseSocketHandle` and `PlatformUtils::OpenBrowser`.
-* **`HttpServer`**: Manages the socket lifecycle. Handles bind, listen, client TCP connection acceptance, and TCP non-buffering (`TCP_NODELAY`). It delegates incoming payload interpretation to a functional `RequestHandler` callback.
+* **`SocketPlatform.h`**: Encapsulates OS differences between Windows (`winsock2.h`, `ws2_32.lib`) and Linux/POSIX (`<sys/socket.h>`, `<unistd.h>`). Standardizes the socket handle type as `socket_t` and provides cross-platform helpers like `CloseSocketHandle` and `PlatformUtils::OpenBrowser`.
+* **`HttpServer`**: Manages the socket lifecycle. Handles bind, listen, client TCP connection acceptance, and TCP non-buffering (`TCP_NODELAY`). Delegates incoming payload interpretation to a functional `RequestHandler` callback.
 * **`HttpRequest`**: Represents an HTTP 1.1 request line. Splits the incoming wire format into `method`, target `path`, trailing `query` parameters, and HTTP `version`.
 * **`HttpRoutes.h`**: Central repository for routing identifiers, query parameter keys, HTTP methods, and default responses. Eliminates hardcoded magic strings from the application logic.
 * **`HttpUtils`**: Provides utility routines including percent-encoding decoding (`UrlDecode`), query string extraction (`GetQueryParam`), MIME-type matching, asset path resolution across directory structures, and HTTP wire formatting (`MakeHttpResponse`).
 * **`main.cpp` (Main Dispatcher)**: Entry point and controller. Boots the audio backend (`WindowsMusicSystem` or `LinuxMusicSystem`), binds domain services (`DrumKit`, `InstrumentManager`, `DrumLoopEngine`, `ThreadPool`), and translates HTTP actions into audio engine events.
-
----
 
 ## 2. Sequence Diagrams
 
@@ -142,8 +142,6 @@ sequenceDiagram
 
 ```
 
----
-
 ### Static Asset Delivery (`GET /styles.css`)
 
 ```mermaid
@@ -172,8 +170,6 @@ sequenceDiagram
 
 ```
 
----
-
 ### Graceful System Shutdown (`POST /shutdown`)
 
 ```mermaid
@@ -182,7 +178,7 @@ sequenceDiagram
     actor User as UI Exit Button
     participant Server as HttpServer
     participant Main as Main (main.cpp)
-    participant Loop as DrumLoopEngine
+    participant DrumEngine as DrumLoopEngine
     participant Audio as WindowsMusicSystem
 
     User->>Server: POST /shutdown (or sendBeacon)
@@ -193,14 +189,12 @@ sequenceDiagram
     Server->>Server: Close client socket & break accept loop
     Server-->>Main: Run() exits
     
-    Main->>Loop: Stop()
+    Main->>DrumEngine: Stop()
     Main->>Server: Stop() & Cleanup()
     Main->>Audio: Clear()
     Note over Main: Server and audio subsystems release system hardware cleanly
 
 ```
-
----
 
 ## 3. Component Architecture & Data Flow
 
@@ -245,5 +239,9 @@ flowchart LR
     IM --> SYS
     DLE --> SYS
     HS -- HTTP Response --> Frontend
+
+```
+
+```
 
 ```
