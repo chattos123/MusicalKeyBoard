@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>61-Key Synthesizer & Sargam Workstation</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <div class="main-container">
+        <!-- Header -->
+        <div class="header-bar">
+            <div class="header-title" id="lblAppTitle">Virtual 61-Key Synthesizer & Sargam Station</div>
+            <div class="header-actions">
+                <button class="btn-settings" onclick="openSettingsModal()">
+                    <span>⚙</span> <span>Settings</span>
+                </button>
+                <button class="btn-shutdown" id="shutdownBtn" onclick="closeApplication()">Quit Application</button>
+            </div>
+        </div>
+
+        <!-- 90s Deck Graphic Equalizer & Master Output Section -->
+        <div class="panel">
+            <div class="panel-header" id="lblEqHeader">Graphic Equalizer & Master Spectrum</div>
+            <div class="eq-container">
+                <canvas id="eqCanvas" class="eq-canvas" width="80" height="88"></canvas>
+                <div class="eq-sliders-row">
+                    <div class="eq-band">
+                        <span class="eq-gain-val" id="val60">0dB</span>
+                        <input type="range" min="-12" max="12" step="1" value="0" id="eq60"
+                            oninput="updateEq(60, this.value)">
+                        <span>60Hz</span>
+                    </div>
+                    <div class="eq-band">
+                        <span class="eq-gain-val" id="val250">0dB</span>
+                        <input type="range" min="-12" max="12" step="1" value="0" id="eq250"
+                            oninput="updateEq(250, this.value)">
+                        <span>250Hz</span>
+                    </div>
+                    <div class="eq-band">
+                        <span class="eq-gain-val" id="val1k">0dB</span>
+                        <input type="range" min="-12" max="12" step="1" value="0" id="eq1k"
+                            oninput="updateEq(1000, this.value)">
+                        <span>1kHz</span>
+                    </div>
+                    <div class="eq-band">
+                        <span class="eq-gain-val" id="val4k">0dB</span>
+                        <input type="range" min="-12" max="12" step="1" value="0" id="eq4k"
+                            oninput="updateEq(4000, this.value)">
+                        <span>4kHz</span>
+                    </div>
+                    <div class="eq-band">
+                        <span class="eq-gain-val" id="val12k">0dB</span>
+                        <input type="range" min="-12" max="12" step="1" value="0" id="eq12k"
+                            oninput="updateEq(12000, this.value)">
+                        <span>12kHz</span>
+                    </div>
+                    <div class="control-group"
+                        style="flex-direction: column; justify-content: center; margin-left: 4px;">
+                        <!-- <button onclick="resetEq()" class="btn-deck-reset" id="btnResetEq">FLAT</button> -->
+                        <!-- Replace the FLAT button container inside .eq-sliders-row with this: -->
+                        <div class="control-group"
+                            style="flex-direction: column; justify-content: center; margin-left: 6px; gap: 4px;">
+                            <label for="eqPreset" id="lblEqPreset"
+                                style="font-size: 8px; color: #7d8290; font-family: 'Consolas', monospace;">PRESET</label>
+                            <select id="eqPreset" class="eq-preset-select" onchange="applyEqPreset(this.value)">
+                                <option value="Flat" selected id="optPresetFlat">Flat</option>
+                                <option value="Rock" id="optPresetRock">Rock</option>
+                                <option value="Disco" id="optPresetDisco">Disco</option>
+                                <option value="Indian" id="optPresetIndian">Indian / Acoustic</option>
+                                <option value="BassBoost" id="optPresetBass">Bass Boost</option>
+                                <option value="Vocal" id="optPresetVocal">Vocal</option>
+                                <option value="Custom" id="optPresetCustom" disabled>Custom</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rhythm Section -->
+        <div class="panel">
+            <div class="panel-header" id="lblRhythmHeader">Rhythm Section (Background Drum Engine)</div>
+            <div class="controls-row">
+                <div class="control-group">
+                    <label id="lblGroove">Groove: </label>
+                    <select id="loopPattern">
+                        <option value="RockBeat" id="optRock">4/4 Rock Groove</option>
+                        <option value="FunkBeat" id="optFunk">16-Beat Funk</option>
+                        <option value="Metronome" id="optMetronome">Metronome (Teental / Metronome)</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label id="lblBpm">BPM: </label>
+                    <input type="number" id="bpm" value="110" min="40" max="220" style="width: 50px;">
+                </div>
+
+                <div class="control-group">
+                    <button id="toggleLoopBtn" class="start">Start Drum Loop</button>
+                </div>
+
+                <div class="control-group">
+                    <label id="lblMasterVol">Volume: </label>
+                    <input type="range" id="vol" min="0.1" max="1.0" step="0.05" value="0.8" style="width: 60px;">
+                </div>
+            </div>
+
+            <div class="drum-pads">
+                <div class="drum-pad" id="pad0" onclick="sendDrumHit(0)">Dha (Kick - 1)</div>
+                <div class="drum-pad" id="pad1" onclick="sendDrumHit(1)">Ta (Snare - 2)</div>
+                <div class="drum-pad" id="pad2" onclick="sendDrumHit(2)">Tin (Hat - 3)</div>
+                <div class="drum-pad" id="pad6" onclick="sendDrumHit(6)">Jhan (Crash - 4)</div>
+            </div>
+        </div>
+
+        <!-- Melodic Keyboard & Notation Controls -->
+        <div class="panel">
+            <div class="panel-header" id="lblKeyboardHeader">61-Key Keyboard & Scale Controls</div>
+            <div class="controls-row">
+                <div class="control-group">
+                    <label id="lblInstrument">Instrument: </label>
+                    <select id="melodicInstrument">
+                        <optgroup label="Keyboard & Reeds" id="grpKeys">
+                            <option value="Harmonium" selected>Indian Harmonium</option>
+                            <option value="Piano">Grand Piano</option>
+                            <option value="Kalimba">17-Key Kalimba</option>
+                        </optgroup>
+                        <optgroup label="Plucked Strings" id="grpPlucked">
+                            <option value="Guitar">Acoustic Guitar</option>
+                            <option value="BassGuitar">Electric Bass Guitar</option>
+                            <option value="Mandolin">Mandolin (Dual-Course)</option>
+                        </optgroup>
+                        <optgroup label="Bowed Strings & Winds" id="grpWinds">
+                            <option value="Saxophone">Alto Saxophone</option>
+                            <option value="Violin">Acoustic Violin (Arco)</option>
+                            <option value="Trumpet">Bb Brass Trumpet</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label id="lblNotation">Notation: </label>
+                    <select id="notationMode">
+                        <option value="Sargam" selected>Indian (Sa Re Ga Ma)</option>
+                        <option value="Western">Western (C D E F)</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label id="rootLabel">Sa (Root): </label>
+                    <select id="rootKey">
+                        <option value="0" selected>C (Safed 1)</option>
+                        <option value="1">C# / Db (Kali 1)</option>
+                        <option value="2">D (Safed 2)</option>
+                        <option value="3">D# / Eb (Kali 2)</option>
+                        <option value="4">E (Safed 3)</option>
+                        <option value="5">F (Safed 4)</option>
+                        <option value="6">F# / Gb (Kali 3)</option>
+                        <option value="7">G (Safed 5)</option>
+                        <option value="8">G# / Ab (Kali 4)</option>
+                        <option value="9">A (Safed 6)</option>
+                        <option value="10">A# / Bb (Kali 5)</option>
+                        <option value="11">B (Safed 7)</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label id="scaleLabel">Thaat / Scale: </label>
+                    <select id="scaleMode">
+                        <optgroup label="Indian Classical Thaats" id="grpThaats">
+                            <option value="Bilawal" selected>Bilawal (Shuddha / Major)</option>
+                            <option value="Kafi">Kafi (komal ga, ni)</option>
+                            <option value="Bhairav">Bhairav (komal re, dha)</option>
+                            <option value="Yaman">Kalyan / Yaman (Teevra Ma)</option>
+                            <option value="Asavari">Asavari (komal ga, dha, ni)</option>
+                            <option value="Khamaj">Khamaj (komal ni)</option>
+                            <option value="Bhairavi">Bhairavi (All Komal)</option>
+                            <option value="Todi">Todi (komal re, ga, dha, teevra ma)</option>
+                        </optgroup>
+                        <optgroup label="Western Modes" id="grpModes">
+                            <option value="Chromatic">Chromatic (All 12 Swaras)</option>
+                            <option value="PentatonicMajor">Major Pentatonic (Bhupali)</option>
+                            <option value="PentatonicMinor">Minor Pentatonic (Dhani)</option>
+                            <option value="Blues">Blues Scale</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label id="lblOctave">QWERTY Keys Octave: </label>
+                    <select id="qwertyOctave">
+                        <option value="36">Octave 2-3 (C2 - E3)</option>
+                        <option value="48">Octave 3-4 (C3 - E4)</option>
+                        <option value="60" selected>Octave 4-5 (C4 - E5 [Mid])</option>
+                        <option value="72">Octave 5-6 (C5 - E6)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 61-Key Interactive Bed -->
+            <div class="keyboard-wrapper" id="keyboardWrapper">
+                <div class="keyboard" id="keyboard"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Preferences & Settings Modal Dialog -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modalTitle">User Preferences & Settings</h3>
+                <button onclick="closeSettingsModal()"
+                    style="background:none; border:none; color:#aaa; font-size:16px; cursor:pointer;">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-row">
+                    <div class="setting-desc">
+                        <strong id="setLocaleTitle">Interface Language / Locale</strong>
+                        <span id="setLocaleSub">Sets dictionary terms for chords, scales and actions</span>
+                    </div>
+                    <select id="localeSelect" style="width: 210px;">
+                        <option value="en-US" selected>English (US) [Default]</option>
+                        <option value="en-GB">English (UK / Classical)</option>
+                        <option value="en-IN">English (India / Sargam)</option>
+                        <option value="kn-IN">ಕನ್ನಡ (Kannada / ಕರ್ನಾಟಿಕ್ & ಹಿಂದೂಸ್ತಾನಿ)</option>
+                        <option value="bn-IN">বাংলা (Bengali / ভারতীয় সঙ্গীত)</option>
+                        <option value="hi-IN">हिन्दी (Hindi / भारतीय संगीत)</option>
+                        <option value="ur-PK">اردو (Urdu / کلاسیکی موسیقی)</option>
+                        <option value="fr-FR">Français (French / Solfège)</option>
+                    </select>
+                </div>
+
+                <div class="setting-row">
+                    <div class="setting-desc">
+                        <strong id="setKeybTitle">Keyboard Overlay</strong>
+                        <span id="setKeybSub">Show QWERTY hotkeys directly on keys</span>
+                    </div>
+                    <input type="checkbox" id="showQwertyCheck" checked onchange="toggleQwertyOverlay(this.checked)">
+                </div>
+
+                <div class="setting-row">
+                    <div class="setting-desc">
+                        <strong id="setEqualizerTitle">90s Equalizer Visualizer</strong>
+                        <span id="setEqualizerSub">Real-time segmented LED frequency monitor</span>
+                    </div>
+                    <input type="checkbox" id="enableVisualizerCheck" checked>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeSettingsModal()"
+                    style="padding:6px 14px; background:#007acc; border-color:#0062a3; color:#fff;"
+                    id="btnSaveClose">Apply & Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modern ES Module script loading -->
+    <script type="module" src="app.js"></script>
+</body>
+
+</html>

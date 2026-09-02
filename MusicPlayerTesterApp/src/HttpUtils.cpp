@@ -5,18 +5,42 @@
 
 namespace HttpUtils
 {
+    namespace
+    {
+        const std::vector<std::string> AssetSearchPrefixes = {
+            "",
+            "web/",
+            "../",
+            "../web/",
+            "../../",
+            "../../web/",
+            "MusicPlayer/",
+            "MusicPlayer/web/"
+        };
 
-    std::string LoadHtmlFile(const std::string &path)
+        int HexCharToInt(char c)
+        {
+            if (c >= '0' && c <= '9') return c - '0';
+            if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+            if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+            return -1;
+        }
+    }
+
+    std::string LoadFile(const std::string& path)
     {
         std::ifstream file(path, std::ios::binary);
         if (!file.is_open())
+        {
             return "";
+        }
+
         std::stringstream buffer;
         buffer << file.rdbuf();
         return buffer.str();
     }
 
-    std::string UrlDecode(const std::string &str)
+    std::string UrlDecode(const std::string& str)
     {
         std::string result;
         result.reserve(str.length());
@@ -25,20 +49,18 @@ namespace HttpUtils
         {
             if (str[i] == '%' && i + 2 < str.length())
             {
-                int value = 0;
-                std::istringstream is(str.substr(i + 1, 2));
+                int high = HexCharToInt(str[i + 1]);
+                int low = HexCharToInt(str[i + 2]);
 
-                if (is >> std::hex >> value)
+                if (high != -1 && low != -1)
                 {
-                    result += static_cast<char>(value);
+                    result += static_cast<char>((high << 4) | low);
                     i += 2;
-                }
-                else
-                {
-                    result += str[i];
+                    continue;
                 }
             }
-            else if (str[i] == '+')
+
+            if (str[i] == '+')
             {
                 result += ' ';
             }
@@ -47,50 +69,96 @@ namespace HttpUtils
                 result += str[i];
             }
         }
+
         return result;
     }
 
-    std::string GetQueryParam(const std::string &query, const std::string &key)
+    std::string GetQueryParam(const std::string& query, const std::string& key)
     {
-        size_t pos = query.find(key + "=");
+        const std::string delimiter = key + "=";
+        size_t pos = query.find(delimiter);
         if (pos == std::string::npos)
+        {
             return "";
-        pos += key.length() + 1;
+        }
+
+        pos += delimiter.length();
         size_t end = query.find('&', pos);
         if (end == std::string::npos)
+        {
             end = query.length();
+        }
+
         return UrlDecode(query.substr(pos, end - pos));
     }
 
-    std::string ResolveHtmlContent()
+    std::string GetMimeType(const std::string& path)
     {
-        const std::vector<std::string> searchPaths = {
-            "index.html",
-            "../../index.html",
-            "../index.html",
-            "MusicPlayer/index.html"};
-
-        for (const auto &path : searchPaths)
+        size_t dotPos = path.rfind('.');
+        if (dotPos == std::string::npos)
         {
-            std::string content = LoadHtmlFile(path);
-            if (!content.empty())
-                return content;
+            return Constants::MimePlain;
         }
 
-        return "<h1>index.html not found! Place it in the project directory.</h1>";
+        std::string extension = path.substr(dotPos);
+
+        if (extension == ".html" || extension == ".htm")
+        {
+            return Constants::MimeHtml;
+        }
+        if (extension == ".css")
+        {
+            return Constants::MimeCss;
+        }
+        if (extension == ".js")
+        {
+            return Constants::MimeJs;
+        }
+        if (extension == ".txt")
+        {
+            return Constants::MimePlain;
+        }
+
+        return Constants::MimeOctetStream;
     }
 
-    void SendHttpResponse(SOCKET clientSocket, const std::string &contentType, const std::string &body)
+    std::string ResolveAssetPath(const std::string& relativePath)
     {
-        std::string response = "HTTP/1.1 200 OK\r\n"
-                               "Content-Type: " +
-                               contentType + "\r\n"
-                                             "Access-Control-Allow-Origin: *\r\n"
-                                             "Content-Length: " +
-                               std::to_string(body.length()) + "\r\n"
-                                                               "Connection: close\r\n\r\n" +
-                               body;
-        send(clientSocket, response.c_str(), static_cast<int>(response.length()), 0);
+        for (size_t i = 0; i < AssetSearchPrefixes.size(); ++i)
+        {
+            std::string candidate = AssetSearchPrefixes[i] + relativePath;
+            std::ifstream fileCheck(candidate, std::ios::binary);
+            if (fileCheck.is_open())
+            {
+                return candidate;
+            }
+        }
+        return "";
+    }
+
+    bool TryLoadAsset(const std::string& relativePath, std::string& outContent)
+    {
+        std::string resolvedPath = ResolveAssetPath(relativePath);
+        if (resolvedPath.empty())
+        {
+            outContent.clear();
+            return false;
+        }
+
+        outContent = LoadFile(resolvedPath);
+        return !outContent.empty();
+    }
+
+    std::string MakeHttpResponse(const std::string& contentType, 
+                                 const std::string& body, 
+                                 const std::string& statusLine)
+    {
+        return statusLine +
+               "Content-Type: " + contentType + "\r\n" +
+               Constants::HeaderCors +
+               "Content-Length: " + std::to_string(body.length()) + "\r\n" +
+               Constants::HeaderClose +
+               body;
     }
 
 } // namespace HttpUtils
