@@ -14,8 +14,14 @@
         <div class="header-bar">
             <div class="header-title" id="lblAppTitle">Virtual 61-Key Synthesizer & Sargam Station</div>
             <div class="header-actions">
+                <button class="btn-action" onclick="openHelpModal()">
+                    <span>❓</span> <span id="btnHelpLabel">Help</span>
+                </button>
+                <button class="btn-action" onclick="openAboutModal()">
+                    <span>ℹ️</span> <span id="btnAboutLabel">About</span>
+                </button>
                 <button class="btn-settings" onclick="openSettingsModal()">
-                    <span>⚙</span> <span>Settings</span>
+                    <span>⚙</span> <span id="btnSettingsLabel">Settings</span>
                 </button>
                 <button class="btn-shutdown" id="shutdownBtn" onclick="closeApplication()">Quit Application</button>
             </div>
@@ -58,23 +64,18 @@
                         <span>12kHz</span>
                     </div>
                     <div class="control-group"
-                        style="flex-direction: column; justify-content: center; margin-left: 4px;">
-                        <!-- <button onclick="resetEq()" class="btn-deck-reset" id="btnResetEq">FLAT</button> -->
-                        <!-- Replace the FLAT button container inside .eq-sliders-row with this: -->
-                        <div class="control-group"
-                            style="flex-direction: column; justify-content: center; margin-left: 6px; gap: 4px;">
-                            <label for="eqPreset" id="lblEqPreset"
-                                style="font-size: 8px; color: #7d8290; font-family: 'Consolas', monospace;">PRESET</label>
-                            <select id="eqPreset" class="eq-preset-select" onchange="applyEqPreset(this.value)">
-                                <option value="Flat" selected id="optPresetFlat">Flat</option>
-                                <option value="Rock" id="optPresetRock">Rock</option>
-                                <option value="Disco" id="optPresetDisco">Disco</option>
-                                <option value="Indian" id="optPresetIndian">Indian / Acoustic</option>
-                                <option value="BassBoost" id="optPresetBass">Bass Boost</option>
-                                <option value="Vocal" id="optPresetVocal">Vocal</option>
-                                <option value="Custom" id="optPresetCustom" disabled>Custom</option>
-                            </select>
-                        </div>
+                        style="flex-direction: column; justify-content: center; margin-left: 6px; gap: 4px;">
+                        <label for="eqPreset" id="lblEqPreset"
+                            style="font-size: 8px; color: #7d8290; font-family: 'Consolas', monospace;">PRESET</label>
+                        <select id="eqPreset" class="eq-preset-select" onchange="applyEqPreset(this.value)">
+                            <option value="Flat" selected id="optPresetFlat">Flat</option>
+                            <option value="Rock" id="optPresetRock">Rock</option>
+                            <option value="Disco" id="optPresetDisco">Disco</option>
+                            <option value="Indian" id="optPresetIndian">Indian / Acoustic</option>
+                            <option value="BassBoost" id="optPresetBass">Bass Boost</option>
+                            <option value="Vocal" id="optPresetVocal">Vocal</option>
+                            <option value="Custom" id="optPresetCustom" disabled>Custom</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -207,13 +208,103 @@
         </div>
     </div>
 
+    <!-- Help & User Guide Modal -->
+    <div class="modal-overlay" id="helpModal">
+        <div class="modal-card modal-card-large">
+            <div class="modal-header">
+                <h3 id="helpModalTitle">User Guide & Quick Reference</h3>
+                <button onclick="closeHelpModal()" class="modal-close-btn">✕</button>
+            </div>
+            <div class="modal-body modal-scrollable">
+                <div class="help-section">
+                    <h4 id="helpKbTitle">⌨️ QWERTY Keyboard Controls</h4>
+                    <p id="helpKbDesc">Play melodies polyphonically directly from your computer keyboard:</p>
+                    <div class="key-guide-grid">
+                        <span class="key-badge">A</span><span>Sa / C</span>
+                        <span class="key-badge">W</span><span>re / C#</span>
+                        <span class="key-badge">S</span><span>Re / D</span>
+                        <span class="key-badge">E</span><span>ga / D#</span>
+                        <span class="key-badge">D</span><span>Ga / E</span>
+                        <span class="key-badge">F</span><span>ma / F</span>
+                        <span class="key-badge">T</span><span>Ma' / F#</span>
+                        <span class="key-badge">G</span><span>Pa / G</span>
+                        <span class="key-badge">Y</span><span>dha / G#</span>
+                        <span class="key-badge">H</span><span>Dha / A</span>
+                        <span class="key-badge">U</span><span>ni / A#</span>
+                        <span class="key-badge">J</span><span>Ni / B</span>
+                        <span class="key-badge">K</span><span>Ṡa / C+1</span>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h4 id="helpDrumTitle">🥁 Percussion Pads Hotkeys</h4>
+                    <div class="key-guide-grid">
+                        <span class="key-badge">1</span><span>Dha (Bass Drum / Ge)</span>
+                        <span class="key-badge">2</span><span>Ta (Snare Drum / Na)</span>
+                        <span class="key-badge">3</span><span>Tin (Hi-Hat / Tin)</span>
+                        <span class="key-badge">4</span><span>Jhan (Crash Cymbal)</span>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h4 id="helpEqTitle">🎛️ Equalizer & Sargam Notation</h4>
+                    <ul class="help-list">
+                        <li id="helpEqDesc">Select standard curves (Rock, Disco, Indian Classical, Vocal, Bass Boost) or
+                            adjust the 5 frequency bands manually to shape the synthesized acoustic profile.</li>
+                        <li id="helpSargamDesc">Use the <strong>Sa (Root)</strong> selector to transpose your
+                            fundamental tonic across all 12 swaras; scale degrees adapt visually across Mandra (Ṣa),
+                            Madhya (Sa), and Taar (Ṡa) Saptaks.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeHelpModal()" class="btn-primary" id="btnCloseHelp">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- About & Copyright Modal -->
+    <div class="modal-overlay" id="aboutModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="aboutModalTitle">About Synthesizer Workstation</h3>
+                <button onclick="closeAboutModal()" class="modal-close-btn">✕</button>
+            </div>
+            <div class="modal-body about-body">
+                <div class="about-icon">🎹</div>
+                <h2 class="about-app-title">61-Key Virtual Synthesizer & Sargam Station</h2>
+                <p class="about-version">Version 1.0.0 (Build 2026)</p>
+                <hr class="about-divider" />
+                <div class="about-info-row">
+                    <span class="about-label" id="aboutAuthorLabel">Author / Architecture:</span>
+                    <span class="about-val">Soumyajit Chatterjee</span>
+                </div>
+                <div class="about-info-row">
+                    <span class="about-label" id="aboutEngineLabel">Audio Engine:</span>
+                    <span class="about-val">Continuous Multi-Voice WASAPI / POSIX C++ Engine</span>
+                </div>
+                <div class="about-info-row">
+                    <span class="about-label" id="aboutLicenseLabel">License:</span>
+                    <span class="about-val">MIT License</span>
+                </div>
+                <div class="about-copyright">
+                    <p id="aboutCopyrightText">© 2026 Soumyajit Chatterjee. All rights reserved.</p>
+                    <p class="about-subtext">Open-source real-time physical modeling synthesizer and Indian classical
+                        sargam analysis workstation.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeAboutModal()" class="btn-primary" id="btnCloseAbout">OK</button>
+            </div>
+        </div>
+    </div>
+
     <!-- User Preferences & Settings Modal Dialog -->
     <div class="modal-overlay" id="settingsModal">
         <div class="modal-card">
             <div class="modal-header">
                 <h3 id="modalTitle">User Preferences & Settings</h3>
-                <button onclick="closeSettingsModal()"
-                    style="background:none; border:none; color:#aaa; font-size:16px; cursor:pointer;">✕</button>
+                <button onclick="closeSettingsModal()" class="modal-close-btn">✕</button>
             </div>
             <div class="modal-body">
                 <div class="setting-row">
@@ -250,9 +341,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button onclick="closeSettingsModal()"
-                    style="padding:6px 14px; background:#007acc; border-color:#0062a3; color:#fff;"
-                    id="btnSaveClose">Apply & Close</button>
+                <button onclick="closeSettingsModal()" class="btn-primary" id="btnSaveClose">Apply & Close</button>
             </div>
         </div>
     </div>

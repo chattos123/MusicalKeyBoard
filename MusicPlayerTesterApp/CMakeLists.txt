@@ -2,6 +2,7 @@ add_executable(MusicPlayerTesterApp
     src/main.cpp
     src/HttpServer.cpp
     src/HttpUtils.cpp
+    src/HttpRequest.cpp
 )
 
 target_include_directories(MusicPlayerTesterApp
