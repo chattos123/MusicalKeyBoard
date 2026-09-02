@@ -1,0 +1,608 @@
+:root {
+    --bg: #121212;
+    --panel: #1e1e1e;
+    --panel-sub: #2a2a2a;
+    --accent: #007acc;
+    --accent-orange: #ff7700;
+    --accent-green: #28a745;
+    --accent-red: #dc3545;
+    --white-key: #fcfcfc;
+    --white-key-active: #c4c4c4;
+    --black-key: #111111;
+    --black-key-active: #3d3d3d;
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    user-select: none;
+    gap: 12px;
+    padding: 10px 0;
+}
+
+.main-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 1240px;
+    max-width: 96vw;
+}
+
+.header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--panel);
+    padding: 8px 18px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.header-title {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-settings {
+    background: #2a2a35;
+    color: #ffaa00;
+    border: 1px solid #444455;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-settings:hover {
+    background: #383848;
+    color: #fff;
+    border-color: #ffaa00;
+}
+
+.btn-shutdown {
+    background: #8b0000;
+    color: #fff;
+    border: 1px solid #ff4d4d;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-shutdown:hover { background: #b30000; }
+
+.panel {
+    background: var(--panel);
+    padding: 12px 16px;
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.panel-header {
+    font-weight: 600;
+    font-size: 12px;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 4px;
+}
+
+.controls-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+}
+
+select, input[type=number], input[type=range], button {
+    background: var(--panel-sub);
+    color: #fff;
+    border: 1px solid #444;
+    padding: 5px 8px;
+    border-radius: 5px;
+    font-size: 12px;
+    outline: none;
+}
+
+button {
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.15s ease;
+}
+
+button.start { background: var(--accent-green); border-color: #1e7e34; }
+button.stop { background: var(--accent-red); border-color: #bd2130; }
+
+.drum-pads {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.drum-pad {
+    background: #2d2d2d;
+    border: 1px solid #444;
+    padding: 8px;
+    text-align: center;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 11px;
+}
+
+.drum-pad:active {
+    background: var(--accent);
+    border-color: #66b0ff;
+}
+
+/* -------------------------------------------------------------
+   Classic Windows Media Player Style Graphic Equalizer
+------------------------------------------------------------- */
+.eq-container 
+{
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    background: linear-gradient(180deg, #18191e 0%, #0d0e12 100%);
+    padding: 8px 12px;
+    border-radius: 6px;
+    width: fit-content;
+    border: 1px solid #2e303a;
+    box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.06), 0 4px 12px rgba(0, 0, 0, 0.7);
+}
+
+/* Taller, narrower VFD spectrum display */
+.eq-canvas 
+{
+    background: #040608;
+    border: 1px solid #1c222c;
+    border-radius: 4px;
+    width: 80px;
+    height: 88px;
+    box-shadow: inset 0 0 10px rgba(0, 230, 118, 0.12);
+}
+
+.eq-sliders-row 
+{
+    display: flex;
+    gap: 6px;
+    align-items: flex-end;
+    justify-content: flex-start;
+}
+
+/* Narrower band card with taller travel path */
+.eq-band 
+{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    font-size: 8.5px;
+    color: #7d8290;
+    font-family: 'Consolas', monospace;
+    width: 32px;
+    background: #111216;
+    padding: 6px 0 4px 0;
+    border-radius: 3px;
+    border: 1px solid #1e2028;
+}
+
+/* Increased slider height for classic WMP look */
+.eq-band input[type=range] 
+{
+    /* -webkit-appearance: slider-vertical;
+    writing-mode: bt-lr;
+    width: 22px;
+    height: 74px;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    margin: 3px 0; */
+    appearance: none;
+    -webkit-appearance: none;
+    writing-mode: vertical-lr;
+    direction: rtl;
+    width: 22px;
+    height: 74px;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    margin: 3px 0;
+}
+
+.eq-band input[type=range]::-webkit-slider-runnable-track 
+{
+    width: 3px;
+    background: #060709;
+    border-left: 1px solid #272a34;
+    border-right: 1px solid #272a34;
+    border-radius: 1px;
+}
+
+/* Metallic thumb with electric-cyan / orange center indicator */
+.eq-band input[type=range]::-webkit-slider-thumb 
+{
+    -webkit-appearance: none;
+    appearance: none;
+    height: 12px;
+    width: 22px;
+    background: linear-gradient(180deg, #d8d8d8 0%, #828282 45%, #0099ff 50%, #5a5a5a 55%, #303030 100%);
+    border: 1px solid #0a0a0c;
+    border-radius: 2px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+    cursor: pointer;
+}
+
+.eq-gain-val {
+    font-family: 'Consolas', monospace;
+    font-size: 8px;
+    font-weight: bold;
+    color: #00d0ff;
+}
+
+/* .btn-deck-reset {
+    background: linear-gradient(180deg, #262832 0%, #16171d 100%);
+    border: 1px solid #383b48;
+    color: #bbb;
+    padding: 6px 8px;
+    font-size: 8px;
+    font-family: 'Consolas', monospace;
+    font-weight: bold;
+    letter-spacing: 0.8px;
+    border-radius: 3px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+    align-self: center;
+}
+
+.btn-deck-reset:hover {
+    background: #323542;
+    color: #fff;
+    border-color: #0099ff;
+} */
+
+
+/* -------------------------------------------------------------
+   Equalizer Preset Dropdown Styling
+------------------------------------------------------------- */
+.eq-preset-select {
+    background: linear-gradient(180deg, #242630 0%, #15161c 100%);
+    border: 1px solid #383b48;
+    color: #00d0ff;
+    padding: 4px 6px;
+    font-size: 8.5px;
+    font-family: 'Consolas', monospace;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    border-radius: 3px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
+    outline: none;
+    max-width: 95px;
+}
+
+.eq-preset-select:hover {
+    border-color: #0099ff;
+    color: #ffffff;
+}
+
+.eq-preset-select option {
+    background: #15161c;
+    color: #ffffff;
+}
+
+/* 90s Stereo Cassette Deck Graphic Equalizer
+.eq-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    background: linear-gradient(180deg, #151517 0%, #0d0d0f 100%);
+    padding: 8px 12px;
+    border-radius: 5px;
+    width: fit-content;
+    border: 1px solid #282830;
+    box-shadow: inset 0 1px 3px rgba(255,255,255,0.05), 0 4px 10px rgba(0,0,0,0.6);
+}
+
+.eq-canvas {
+    background: #050608;
+    border: 1px solid #1f2228;
+    border-radius: 3px;
+    width: 115px;
+    height: 52px;
+    box-shadow: inset 0 0 6px rgba(0,255,100,0.08);
+}
+
+.eq-sliders-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    justify-content: flex-start;
+}
+
+.eq-band {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    font-size: 9px;
+    color: #8f929a;
+    font-family: 'Consolas', monospace;
+    width: 44px;
+    background: #111114;
+    padding: 4px 0 2px 0;
+    border-radius: 3px;
+    border: 1px solid #202026;
+}
+
+.eq-band input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    writing-mode: bt-lr;
+    -webkit-appearance: slider-vertical;
+    width: 32px;
+    height: 44px;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    margin: 2px 0;
+}
+
+.eq-band input[type=range]::-webkit-slider-runnable-track {
+    width: 4px;
+    background: #000000;
+    border-left: 1px solid #2f2f36;
+    border-right: 1px solid #2f2f36;
+    border-radius: 1px;
+}
+
+.eq-band input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 10px;
+    width: 30px;
+    background: linear-gradient(180deg, #dcdcdc 0%, #8a8a8a 45%, #ff5500 50%, #707070 55%, #4a4a4a 100%);
+    border: 1px solid #111;
+    border-radius: 1px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    cursor: pointer;
+}
+
+.eq-gain-val {
+    font-family: 'Consolas', monospace;
+    font-size: 8px;
+    font-weight: bold;
+    color: #ffaa00;
+}
+
+.btn-deck-reset {
+    background: linear-gradient(180deg, #2c2c34 0%, #1a1a20 100%);
+    border: 1px solid #3d3d48;
+    color: #ddd;
+    padding: 4px 6px;
+    font-size: 8.5px;
+    font-family: 'Consolas', monospace;
+    letter-spacing: 0.5px;
+    border-radius: 2px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.btn-deck-reset:hover {
+    background: #383842;
+    color: #fff;
+} */
+
+/* 61-Key Keyboard Container */
+.keyboard-wrapper {
+    position: relative;
+    width: 100%;
+    overflow-x: auto;
+    background: #080808;
+    border-radius: 8px;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);
+    padding: 10px 6px;
+    box-sizing: border-box;
+}
+
+.keyboard-wrapper::-webkit-scrollbar { height: 8px; }
+.keyboard-wrapper::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 4px;
+}
+
+.keyboard {
+    position: relative;
+    display: flex;
+    height: 195px;
+    width: fit-content;
+}
+
+.white-key {
+    width: 32px;
+    height: 100%;
+    background: var(--white-key);
+    border: 1px solid #bbb;
+    border-radius: 0 0 4px 4px;
+    box-sizing: border-box;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 5px;
+    color: #222;
+    font-weight: bold;
+    font-size: 10px;
+    cursor: pointer;
+}
+
+.white-key.active {
+    background: var(--white-key-active);
+    transform: translateY(2px);
+}
+
+.white-key .note-label {
+    font-size: 9px;
+    color: #666;
+    margin-top: 1px;
+}
+
+.white-key .swara-label {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--accent-orange);
+    margin-top: 1px;
+}
+
+.white-key.qwerty-mapped { background: #e9f3fb; }
+.white-key.in-scale { border-bottom: 4px solid var(--accent); }
+.white-key.sargam-mode.in-scale { border-bottom: 4px solid var(--accent-orange); }
+.white-key.out-scale { opacity: 0.4; }
+
+.black-key {
+    position: absolute;
+    width: 20px;
+    height: 120px;
+    background: var(--black-key);
+    border-radius: 0 0 3px 3px;
+    z-index: 2;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 4px;
+    color: #ccc;
+    font-size: 8px;
+}
+
+.black-key.active {
+    background: var(--black-key-active);
+    transform: translateY(2px);
+}
+
+.black-key .swara-label {
+    font-size: 9px;
+    font-weight: bold;
+    color: #ffb066;
+    margin-top: 1px;
+}
+
+.black-key.qwerty-mapped { background: #253342; }
+.black-key.in-scale { border-bottom: 3px solid #66b0ff; }
+.black-key.sargam-mode.in-scale { border-bottom: 3px solid var(--accent-orange); }
+.black-key.out-scale { opacity: 0.35; }
+
+/* Preferences Modal Dialog */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(3px);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-overlay.open { display: flex; }
+
+.modal-card {
+    background: #1c1c22;
+    border: 1px solid #383848;
+    border-radius: 8px;
+    width: 480px;
+    max-width: 90vw;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.modal-header {
+    background: #24242e;
+    padding: 12px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #333342;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 14px;
+    color: #ffaa00;
+    letter-spacing: 0.5px;
+}
+
+.modal-body {
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    font-size: 13px;
+}
+
+.setting-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #282834;
+}
+
+.setting-desc {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.setting-desc span:last-child {
+    font-size: 11px;
+    color: #888;
+}
+
+.modal-footer {
+    background: #18181f;
+    padding: 10px 18px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px solid #282834;
+}

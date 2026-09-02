@@ -13,12 +13,28 @@ add_subdirectory(MusicInstrument)
 add_subdirectory(MusicBuilderBL)
 add_subdirectory(MusicPlayerTesterApp)
 
-# Install Application Asset (HTML Frontend) alongside the binary
-install(FILES index.html
+# ------------------------------------------------------------------------------
+# Install Application Assets (Modular Web UI) alongside the executable
+# ------------------------------------------------------------------------------
+install(FILES
+    web/index.html
+    web/styles.css
+    web/app.js
+    web/locales.js
     DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-# Generate CMake Package Config files for 3rd-party find_package(MusicPlayerSDK)
+# Optional: Install project documentation & license
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
+    install(FILES README.md DESTINATION ${CMAKE_INSTALL_DOCDIR})
+endif()
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+    install(FILES LICENSE DESTINATION ${CMAKE_INSTALL_DOCDIR})
+endif()
+
+# ------------------------------------------------------------------------------
+# Generate CMake Package Config files for find_package(MusicPlayerSDK)
+# ------------------------------------------------------------------------------
 set(CONFIG_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/MusicPlayerSDK")
 
 write_basic_package_version_file(
@@ -27,11 +43,11 @@ write_basic_package_version_file(
     COMPATIBILITY AnyNewerVersion
 )
 
-# Package config file referencing all exported target scripts
+# Package config referencing exported targets
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/MusicPlayerSDKConfig.cmake" "
 include(CMakeFindDependencyMacro)
 if(WIN32)
-    # Win32 platform dependencies are linked privately inside target definitions
+    # Win32 dependencies linked privately in target definitions
 elseif(UNIX)
     find_dependency(Threads)
 endif()
