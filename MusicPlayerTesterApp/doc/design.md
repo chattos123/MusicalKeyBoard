@@ -1,10 +1,6 @@
----
-
 # Architecture & Design Document: MusicPlayerTesterApp
 
 `MusicPlayerTesterApp` hosts the HTTP server and real-time dispatcher for the **Virtual 61-Key Synthesizer & Sargam Workstation**. It handles platform-independent socket communications, HTTP protocol decoding, static asset delivery, and multi-threaded audio task scheduling.
-
----
 
 ## 1. Class Architecture & Roles
 
@@ -97,7 +93,6 @@ classDiagram
     MainDispatcher --> ThreadPool : enqueues non-blocking audio tasks
     MainDispatcher --> DrumLoopEngine : triggers rhythm sequencer
     MainDispatcher --> InstrumentManager : resolves sound models
-
 ```
 
 ### Class & Module Responsibilities
