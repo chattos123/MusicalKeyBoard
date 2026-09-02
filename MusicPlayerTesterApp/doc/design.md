@@ -1,4 +1,3 @@
-```markdown
 # Architecture & Design Document: MusicPlayerTesterApp
 
 `MusicPlayerTesterApp` hosts the HTTP server and real-time dispatcher for the **Virtual 61-Key Synthesizer & Sargam Workstation**. It handles platform-independent socket communications, HTTP protocol decoding, static asset delivery, and multi-threaded audio task scheduling.
@@ -239,9 +238,5 @@ flowchart LR
     IM --> SYS
     DLE --> SYS
     HS -- HTTP Response --> Frontend
-
-```
-
-```
 
 ```
