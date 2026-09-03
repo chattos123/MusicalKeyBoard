@@ -1,3 +1,32 @@
+/**
+ * @file DrumKit.cpp
+ * @author Soumyajit Chatterjee
+ * @date 03-Sep-2026
+ * @brief Implementation of the DrumKit class for acoustic percussion synthesis.
+ *
+ * This file provides the concrete implementation of the DrumKit class, synthesizing
+ * acoustic drum membrane, shell, and metallic percussion sounds using procedural DSP techniques.
+ * It models physical characteristics such as pitch envelopes, resonant decay, beater impact clicks,
+ * snare wire rattles, and metallic cymbals, outputting directly to the audio subsystem.
+ *
+ * Design Choices:
+ * - Uses procedural mathematical functions (sine oscillators, exponential envelopes, pseudo-random noise)
+ *   to avoid external audio asset/sample dependencies.
+ * - Polyphonic beat layering dynamically scales and soft-clips multi-voice hits using std::tanh.
+ * - Bridges melodic calls (PlayNote, PlayChord) from the IMusicInstrument interface to percussion
+ *   elements via frequency threshold partitioning.
+ * - Asynchronous hardware mixing is dispatched through IMusicSystem::MixAudioAsync.
+ *
+ * Physics & Synthesis Notes:
+ * - Bass Drum (Kick): Exponential sweep dropping from 150 Hz to 45 Hz with a brief 5 ms beater click.
+ * - Snare Drum: 180 Hz exponentially decaying shell fundamental blended with noise representing snare wires.
+ * - Hi-Hats: Steep exponential decays of white noise simulating fast mechanical damping (closed) or sustained cymbal wash (open).
+ * - Toms: Resonant decaying membranes with moderate initial pitch drops.
+ * - Crash Cymbal: Extended exponential decay over high-frequency noise wash.
+ *
+ * @copyright © 2026 Soumyajit Chatterjee. All rights reserved.
+ */
+
 #include "DrumKit.h"
 #include <cmath>
 #include <random>
@@ -7,19 +36,45 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+/**
+ * @brief Constructs a DrumKit instance bound to an audio subsystem.
+ * @param musicSystem Shared pointer to the audio system backend for sound rendering.
+ */
 DrumKit::DrumKit(std::shared_ptr<IMusicSystem> musicSystem)
     : m_musicSystem(std::move(musicSystem)), m_name("Standard Acoustic Drum Kit") {}
 
+/**
+ * @brief Retrieves the human-readable identifier of the drum kit.
+ * @return Standard string containing the drum kit name.
+ */
 std::string DrumKit::GetName() const 
 {
     return m_name;
 }
 
+/**
+ * @brief Retrieves the descriptive names of all supported drum kit pieces.
+ * @return Vector of string identifiers corresponding to available drum pieces.
+ */
 std::vector<std::string> DrumKit::GetDrumPieces() const 
 {
     return { "Bass Drum (Kick)", "Snare Drum", "Closed Hi-Hat", "Open Hi-Hat", "Low Tom", "High Tom", "Crash Cymbal" };
 }
 
+/**
+ * @brief Procedurally synthesizes a single percussion piece into an audio buffer.
+ * @details Computes time-domain samples based on physical acoustic principles:
+ *          - Bass Drum: Fast pitch drop coupled with transient beater noise.
+ *          - Snare Drum: Decaying body resonance mixed with wire rattle noise.
+ *          - Closed Hi-Hat: Metallic noise with rapid exponential decay (60/sec).
+ *          - Open Hi-Hat: Sustained metallic noise with moderate decay (8/sec).
+ *          - Toms: Low/High resonant membrane pitch slides.
+ *          - Crash Cymbal: Dense broad-spectrum noise with slow decay (2.5/sec).
+ * @param piece The DrumPiece enum value specifying the drum component to synthesize.
+ * @param velocity Strike velocity/intensity scalar in the range [0.0, 1.0].
+ * @param sampleRate Audio sampling rate in Hertz.
+ * @param buffer Output PCM sample buffer to which the synthesized piece is accumulated.
+ */
 void DrumKit::SynthesizePiece(DrumPiece piece, double velocity, double sampleRate, std::vector<float>& buffer) 
 {
     size_t totalSamples = buffer.size();
@@ -100,11 +155,26 @@ void DrumKit::SynthesizePiece(DrumPiece piece, double velocity, double sampleRat
     }
 }
 
+/**
+ * @brief Strikes a single drum piece and plays it through the audio subsystem.
+ * @param piece The DrumPiece enum value specifying the component to strike.
+ * @param velocity Strike intensity scalar in the range [0.0, 1.0] (default: 0.8).
+ * @param durationSeconds Duration of the rendered audio segment in seconds (default: 1.0s).
+ */
 void DrumKit::HitDrum(DrumPiece piece, double velocity, double durationSeconds) 
 {
     PlayBeat({ piece }, durationSeconds, velocity);
 }
 
+/**
+ * @brief Synthesizes and plays multiple drum pieces simultaneously as a layered composite beat.
+ * @details Synthesizes each specified piece into a common output buffer, normalizes the composite
+ *          amplitude by the square root of the piece count, applies hyperbolic tangent (tanh)
+ *          soft limiting to prevent clipping, and routes the buffer to the asynchronous mixer.
+ * @param pieces Vector of DrumPiece values to strike simultaneously.
+ * @param durationSeconds Total sound duration in seconds (default: 1.0s).
+ * @param velocity Strike intensity scalar in the range [0.0, 1.0] (default: 0.8).
+ */
 void DrumKit::PlayBeat(const std::vector<DrumPiece>& pieces, double durationSeconds, double velocity) 
 {
     if (pieces.empty() || !m_musicSystem) return;
@@ -125,7 +195,17 @@ void DrumKit::PlayBeat(const std::vector<DrumPiece>& pieces, double durationSeco
     m_musicSystem->MixAudioAsync(outputBuffer);
 }
 
-// IMusicInstrument fallback implementation (maps pitch to closest drum hit)
+/**
+ * @brief IMusicInstrument melodic fallback mapping pitch frequency to an appropriate drum piece.
+ * @details Partitions the audio spectrum to trigger percussion pieces based on input frequency:
+ *          - < 80 Hz: Bass Drum (Kick)
+ *          - 80 Hz - 159 Hz: Low Tom
+ *          - 160 Hz - 239 Hz: Snare Drum
+ *          - >= 240 Hz: Closed Hi-Hat
+ * @param frequencyHz Input frequency in Hertz.
+ * @param durationSeconds Duration of the sound in seconds.
+ * @param velocity Intensity scalar in the range [0.0, 1.0].
+ */
 void DrumKit::PlayNote(double frequencyHz, double durationSeconds, double velocity)
 {
     if (frequencyHz < 80.0) 
@@ -146,6 +226,17 @@ void DrumKit::PlayNote(double frequencyHz, double durationSeconds, double veloci
     }
 }
 
+/**
+ * @brief IMusicInstrument melodic fallback mapping a chord of frequencies into a composite beat.
+ * @details Analyzes input frequencies and groups them into drum pieces:
+ *          - < 100 Hz: Bass Drum
+ *          - 100 Hz - 199 Hz: Snare Drum
+ *          - >= 200 Hz: Closed Hi-Hat
+ *          Triggers all mapped pieces simultaneously via PlayBeat.
+ * @param frequencies Vector of frequencies in Hertz representing the chord.
+ * @param durationSeconds Duration of the resulting sound in seconds.
+ * @param velocity Intensity scalar in the range [0.0, 1.0].
+ */
 void DrumKit::PlayChord(const std::vector<double>& frequencies, double durationSeconds, double velocity) 
 {
     std::vector<DrumPiece> pieces;
