@@ -238,23 +238,22 @@ stateDiagram-v2
 
     state ThreadPoolConcurrency {
         [*] --> QueueEmpty
-        QueueEmpty --> QueueOccupied : Enqueue(task) acquires m_queueMutex
-        QueueOccupied --> TaskPopped : Worker wakes via m_cv condition
-        TaskPopped --> Processing : Lock released; invoke task()
-        Processing --> QueueEmpty : Task completed
+        QueueEmpty --> QueueOccupied : "Enqueue(task) acquires mutex"
+        QueueOccupied --> TaskPopped : "Worker wakes via condition variable"
+        TaskPopped --> Processing : "Lock released; invoke task()"
+        Processing --> QueueEmpty : "Task completed"
     }
 
     state SequencerConcurrency {
         [*] --> SequencerStopped
-        SequencerStopped --> SequencerRunning : Start() spawns std::thread
-        SequencerRunning --> StepTrigger : Sleep cycle expires
-        StepTrigger --> MixAsyncDispatched : Audio driver mutex locked briefly
-        MixAsyncDispatched --> SequencerRunning : Re-arm next absolute tick
-        SequencerRunning --> SequencerStopped : Stop() sets m_running=false & join()
+        SequencerStopped --> SequencerRunning : "Start() spawns worker thread"
+        SequencerRunning --> StepTrigger : "Sleep cycle expires"
+        StepTrigger --> MixAsyncDispatched : "Audio driver mutex locked briefly"
+        MixAsyncDispatched --> SequencerRunning : "Re-arm next absolute tick"
+        SequencerRunning --> SequencerStopped : "Stop() sets running=false & join()"
     }
 
 ```
-
 ### Thread Safety Guarantees
 
 * **`ThreadPool` Worker Synchronization**: Tasks are guarded by `std::unique_lock<std::mutex>`. Idle threads block on `std::condition_variable::wait` to consume negligible CPU cycles while awaiting work.
