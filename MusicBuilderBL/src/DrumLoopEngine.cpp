@@ -1,14 +1,37 @@
+/**
+ * @file DrumLoopEngine.cpp
+ * @author Soumyajit C
+ * @brief Implementation of DrumLoopEngine for asynchronous drum pattern playback.
+ * @date 2026-09-03
+ *
+ * The DrumLoopEngine runs a background thread that interprets drum patterns
+ * and triggers beats at the specified tempo (BPM). It supports multiple
+ * predefined patterns such as RockBeat, Metronome, and FunkBeat.
+ */
+
 #include "DrumLoopEngine.h"
 #include <chrono>
 
+/**
+ * @brief Constructs a DrumLoopEngine with the given drum kit.
+ * @param drums [in] Shared pointer to a DrumKit instance.
+ */
 DrumLoopEngine::DrumLoopEngine(std::shared_ptr<DrumKit> drums)
     : m_drums(std::move(drums)) {}
 
+/**
+ * @brief Destructor. Ensures the loop thread is stopped and cleaned up.
+ */
 DrumLoopEngine::~DrumLoopEngine() 
 {
     Stop();
 }
 
+/**
+ * @brief Starts the drum loop with the given pattern and tempo.
+ * @param pattern [in] Drum pattern string ("RockBeat", "Metronome", "FunkBeat").
+ * @param bpm [in] Tempo in beats per minute (clamped between 40 and 240).
+ */
 void DrumLoopEngine::Start(const std::string& pattern, double bpm) 
 {
     Stop();
@@ -19,6 +42,9 @@ void DrumLoopEngine::Start(const std::string& pattern, double bpm)
     m_loopThread = std::thread(&DrumLoopEngine::LoopWorker, this, pattern, bpm);
 }
 
+/**
+ * @brief Stops the drum loop and joins the background thread.
+ */
 void DrumLoopEngine::Stop() 
 {
     m_running.store(false);
@@ -29,6 +55,17 @@ void DrumLoopEngine::Stop()
     }
 }
 
+/**
+ * @brief Worker function that runs the drum loop in a separate thread.
+ * @param pattern [in] Drum pattern string.
+ * @param bpm [in] Tempo in beats per minute.
+ *
+ * This function interprets the pattern and triggers drum hits at the correct timing.
+ * Supported patterns:
+ * - RockBeat: Alternates bass+hi-hat and snare+hi-hat over 4 steps.
+ * - Metronome: Alternates bass and hi-hat over 4 steps.
+ * - FunkBeat: 16-step funk groove with bass, snare, and hi-hat variations.
+ */
 void DrumLoopEngine::LoopWorker(std::string pattern, double bpm) 
 {
     double beatIntervalMs = (60.0 / bpm) * 1000.0;
@@ -60,7 +97,7 @@ void DrumLoopEngine::LoopWorker(std::string pattern, double bpm)
             step = (step + 1) % 4;
         }
         else 
-        { // FunkBeat (16-step)
+        { // FunkBeat (16-step groove)
             if (step == 0) m_drums->PlayBeat({ DrumPiece::BassDrum, DrumPiece::ClosedHiHat }, 0.15, 0.9);
             else if (step == 4 || step == 12) m_drums->PlayBeat({ DrumPiece::SnareDrum, DrumPiece::ClosedHiHat }, 0.15, 0.85);
             else if (step == 6 || step == 10) m_drums->PlayBeat({ DrumPiece::BassDrum }, 0.15, 0.8);
@@ -69,7 +106,8 @@ void DrumLoopEngine::LoopWorker(std::string pattern, double bpm)
             step = (step + 1) % 16;
         }
 
-        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now() - start).count();
         double waitTime = beatIntervalMs - elapsed;
         int waitSteps = static_cast<int>(waitTime / 10.0);
         
