@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Virtual 61-Key Synthesizer & Sargam Station - User Guide</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 18mm 15mm;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #1f2937;
+      line-height: 1.45;
+      font-size: 11pt;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      font-size: 20pt;
+      color: #111827;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      color: #6b7280;
+      font-size: 10pt;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 8px;
+    }
+    h2 {
+      font-size: 13pt;
+      color: #1f2937;
+      border-left: 4px solid #f59e0b;
+      padding-left: 8px;
+      margin-top: 18px;
+      margin-bottom: 10px;
+    }
+    p {
+      margin: 6px 0;
+    }
+    .img-container {
+      text-align: center;
+      margin: 10px 0;
+    }
+    .img-container img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+    .img-row {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin: 12px 0;
+    }
+    .img-row img {
+      max-width: 48%;
+      height: auto;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 9.5pt;
+    }
+    th, td {
+      border: 1px solid #e5e7eb;
+      padding: 6px 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #f9fafb;
+      font-weight: 600;
+      color: #374151;
+    }
+    .page-break {
+      page-break-before: always;
+    }
+    .key-badge {
+      display: inline-block;
+      padding: 1px 6px;
+      background: #e5e7eb;
+      border-radius: 4px;
+      font-weight: 600;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PAGE 1: WORKSTATION OVERVIEW -->
+  <h1>Virtual 61-Key Synthesizer & Sargam Station</h1>
+  <div class="subtitle">User Guide & Reference Manual • Version 1.0.0 (Build 2026) • Soumyajit Chatterjee</div>
+
+  <h2>1. Main Workstation Interface</h2>
+  <p>The application integrates real-time physical modeling synthesis with a multi-band graphic equalizer, backing rhythm engine, and an interactive 61-key keyboard accommodating both Indian classical Sargam and Western chromatic scales.</p>
+
+  <div class="img-container">
+    <img src="image_06a53c.png" alt="Main Workstation Interface">
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Section</th>
+        <th>Key Features & Functional Parameters</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Graphic Equalizer</strong></td>
+        <td>5-band sliders (60Hz, 250Hz, 1kHz, 4kHz, 12kHz), 90s-style segmented LED frequency visualizer, and sound presets (Flat, etc.).</td>
+      </tr>
+      <tr>
+        <td><strong>Rhythm Section</strong></td>
+        <td>Groove selection (4/4 Rock Groove), BPM slider/input (110 BPM), master drum loop toggle, volume fader, and 4 live percussion trigger pads.</td>
+      </tr>
+      <tr>
+        <td><strong>Keyboard & Scales</strong></td>
+        <td>Engine selector (Indian Harmonium, Piano, etc.), Notation toggle (Sa Re Ga Ma / Western), Root Sa pitch anchor, Thaat selector, and QWERTY Octave range switcher.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- PAGE 2: CONTROLS & HOTKEYS -->
+  <div class="page-break"></div>
+
+  <h2>2. Computer Keyboard Controls & Quick Reference</h2>
+  <p>Perform live melodies polyphonically using the QWERTY keyboard. Lower-row keys operate standard natural notes (Shuddha swaras), while the upper number/letter tier triggers accidentals (Komal/Teevra swaras).</p>
+
+  <div class="img-container">
+    <img src="image_06a55d.png" style="max-width: 75%;" alt="Quick Reference Dialog">
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Key</th>
+        <th>Swara</th>
+        <th>Western</th>
+        <th>Key</th>
+        <th>Swara</th>
+        <th>Western</th>
+        <th>Percussion Pad</th>
+        <th>Voice</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="key-badge">A</span></td><td>Sa</td><td>C</td>
+        <td><span class="key-badge">W</span></td><td>re</td><td>C#</td>
+        <td><span class="key-badge">1</span></td><td>Dha (Bass Drum / Ge)</td>
+      </tr>
+      <tr>
+        <td><span class="key-badge">S</span></td><td>Re</td><td>D</td>
+        <td><span class="key-badge">E</span></td><td>ga</td><td>D#</td>
+        <td><span class="key-badge">2</span></td><td>Ta (Snare Drum / Na)</td>
+      </tr>
+      <tr>
+        <td><span class="key-badge">D</span></td><td>Ga</td><td>E</td>
+        <td><span class="key-badge">T</span></td><td>Ma'</td><td>F#</td>
+        <td><span class="key-badge">3</span></td><td>Tin (Hi-Hat / Tin)</td>
+      </tr>
+      <tr>
+        <td><span class="key-badge">F</span></td><td>ma</td><td>F</td>
+        <td><span class="key-badge">Y</span></td><td>dha</td><td>G#</td>
+        <td><span class="key-badge">4</span></td><td>Jhan (Crash Cymbal)</td>
+      </tr>
+      <tr>
+        <td><span class="key-badge">G</span></td><td>Pa</td><td>G</td>
+        <td><span class="key-badge">U</span></td><td>ni</td><td>A#</td>
+        <td colspan="2" rowspan="3" style="vertical-align: middle; text-align: center; color: #6b7280; font-size: 8.5pt;">
+          Trigger live rhythmic fills directly over backing drum loops.
+        </td>
+      </tr>
+      <tr>
+        <td><span class="key-badge">H</span></td><td>Dha</td><td>A</td>
+        <td><span class="key-badge">K</span></td><td>Ṡa</td><td>C+1</td>
+      </tr>
+      <tr>
+        <td><span class="key-badge">J</span></td><td>Ni</td><td>B</td>
+        <td>-</td><td>-</td><td>-</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- PAGE 3: SETTINGS & METADATA -->
+  <div class="page-break"></div>
+
+  <h2>3. User Preferences, Localization & Engine Details</h2>
+  <p>The application provides extensive regional language translation for classical terminology across both Hindustani and Carnatic traditions, backed by a non-blocking audio engine.</p>
+
+  <div class="img-row">
+    <img src="image_06a542.png" alt="Settings Dialog">
+    <img src="image_06a57b.png" alt="About Dialog">
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Category</th>
+        <th>Details & Supported Options</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Supported Locales</strong></td>
+        <td>English (US) [Default], English (UK / Classical), English (India / Sargam), ಕನ್ನಡ (Kannada), বাংলা (Bengali), हिन्दी (Hindi), اردو (Urdu), and Français (French / Solfège).</td>
+      </tr>
+      <tr>
+        <td><strong>Visual Toggles</strong></td>
+        <td>Interactive QWERTY Hotkey Keycap Overlays; Segmented 90s LED Frequency Visualizer on/off.</td>
+      </tr>
+      <tr>
+        <td><strong>Audio Architecture</strong></td>
+        <td>Continuous Multi-Voice WASAPI (Windows) and POSIX C++ engine with real-time soft limiting.</td>
+      </tr>
+      <tr>
+        <td><strong>Licensing</strong></td>
+        <td>Open-source physical modeling workstation distributed under the <strong>MIT License</strong>.</td>
+      </tr>
+    </tbody>
+  </table>
+
+</body>
+</html>
