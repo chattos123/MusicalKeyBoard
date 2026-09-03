@@ -1,52 +1,41 @@
+/**
+ * @file HttpRequest.h
+ * @author Soumyajit C
+ * @brief Declaration of the HttpRequest struct and its parsing function.
+ * @date 2026-09-02
+ */
+
 #pragma once
 
 #include <string>
-#include <sstream>
 
+/**
+ * @class HttpRequest
+ * @brief Represents a parsed HTTP request line.
+ *
+ * The HttpRequest struct stores the method, path, query string, and version
+ * of an HTTP request. It provides a static function to parse a raw request line
+ * into its components.
+ */
 struct HttpRequest
 {
-    std::string method;
-    std::string path;
-    std::string query;
-    std::string version;
-    bool isValid{ false };
+    std::string method;    ///< HTTP method (e.g., GET, POST)
+    std::string path;      ///< Request path (e.g., /index.html)
+    std::string query;     ///< Query string (e.g., id=123&name=test)
+    std::string version;   ///< HTTP version (e.g., HTTP/1.1)
+    bool isValid{false};   ///< Indicates whether parsing was successful
 
-    static HttpRequest Parse(const std::string& rawRequest)
-    {
-        HttpRequest req;
-        std::istringstream stream(rawRequest);
-        std::string requestLine;
-
-        if (!std::getline(stream, requestLine) || requestLine.empty())
-        {
-            return req;
-        }
-
-        // Strip trailing \r if present
-        if (!requestLine.empty() && requestLine.back() == '\r')
-        {
-            requestLine.pop_back();
-        }
-
-        std::istringstream lineStream(requestLine);
-        std::string fullTarget;
-        if (!(lineStream >> req.method >> fullTarget >> req.version))
-        {
-            return req;
-        }
-
-        size_t queryPos = fullTarget.find('?');
-        if (queryPos != std::string::npos)
-        {
-            req.path = fullTarget.substr(0, queryPos);
-            req.query = fullTarget.substr(queryPos + 1);
-        }
-        else
-        {
-            req.path = fullTarget;
-        }
-
-        req.isValid = true;
-        return req;
-    }
+    /**
+     * @brief Parses a raw HTTP request line into an HttpRequest object.
+     *
+     * @param rawRequest [in] The raw HTTP request line as a string.
+     * @return HttpRequest [out] Parsed HttpRequest object with method, path, query, and version.
+     *
+     * @remarks
+     * - Strips trailing carriage return (`\r`) if present.
+     * - Splits the request line into method, target (path + query), and version.
+     * - Extracts query parameters if a `?` is found in the target.
+     * - Sets `isValid` to true if parsing succeeds, false otherwise.
+     */
+    static HttpRequest parse(const std::string& rawRequest);
 };

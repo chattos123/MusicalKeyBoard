@@ -1,3 +1,10 @@
+/**
+ * @file HttpServer.cpp
+ * @author Soumyajit C
+ * @brief Implementation of the HttpServer class.
+ * @date 2026-09-02
+ */
+
 #include "HttpServer.h"
 #include <iostream>
 
@@ -7,7 +14,7 @@
 
 namespace
 {
-    constexpr int BufferSize = 2048;
+    constexpr int BufferSize = 2048; ///< Size of the receive buffer
 }
 
 HttpServer::HttpServer(int port, int backlog)
@@ -17,11 +24,11 @@ HttpServer::HttpServer(int port, int backlog)
 
 HttpServer::~HttpServer()
 {
-    Stop();
-    Cleanup();
+    stop();
+    cleanup();
 }
 
-bool HttpServer::Start()
+bool HttpServer::start()
 {
     if (m_running.load())
     {
@@ -42,16 +49,16 @@ bool HttpServer::Start()
     if (m_listenSocket == InvalidSocket)
     {
         std::cerr << "[HttpServer] Fatal: Socket allocation failed.\n";
-        Cleanup();
+        cleanup();
         return false;
     }
 
     int reuseAddr = 1;
 #ifdef _WIN32
-    setsockopt(m_listenSocket, SOL_SOCKET, SO_REUSEADDR, 
+    setsockopt(m_listenSocket, SOL_SOCKET, SO_REUSEADDR,
                reinterpret_cast<const char*>(&reuseAddr), sizeof(reuseAddr));
 #else
-    setsockopt(m_listenSocket, SOL_SOCKET, SO_REUSEADDR, 
+    setsockopt(m_listenSocket, SOL_SOCKET, SO_REUSEADDR,
                &reuseAddr, sizeof(reuseAddr));
 #endif
 
@@ -63,14 +70,14 @@ bool HttpServer::Start()
     if (bind(m_listenSocket, reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr)) == SocketError)
     {
         std::cerr << "[HttpServer] Fatal: Bind failed on port " << m_port << ".\n";
-        Cleanup();
+        cleanup();
         return false;
     }
 
     if (listen(m_listenSocket, m_backlog) == SocketError)
     {
         std::cerr << "[HttpServer] Fatal: Listen failed.\n";
-        Cleanup();
+        cleanup();
         return false;
     }
 
@@ -78,7 +85,7 @@ bool HttpServer::Start()
     return true;
 }
 
-void HttpServer::Run(const RequestHandler& handler)
+void HttpServer::run(const RequestHandler& handler)
 {
     if (!m_running.load() || m_listenSocket == InvalidSocket)
     {
@@ -99,14 +106,14 @@ void HttpServer::Run(const RequestHandler& handler)
 
         int nodelay = 1;
 #ifdef _WIN32
-        setsockopt(clientSocket, IPPROTO_TCP, TCP_NODELAY, 
+        setsockopt(clientSocket, IPPROTO_TCP, TCP_NODELAY,
                    reinterpret_cast<const char*>(&nodelay), sizeof(nodelay));
 #else
-        setsockopt(clientSocket, IPPROTO_TCP, TCP_NODELAY, 
+        setsockopt(clientSocket, IPPROTO_TCP, TCP_NODELAY,
                    &nodelay, sizeof(nodelay));
 #endif
 
-        char buffer[BufferSize] = { 0 };
+        char buffer[BufferSize] = {0};
         int bytesReceived = static_cast<int>(recv(clientSocket, buffer, sizeof(buffer) - 1, 0));
 
         if (bytesReceived > 0)
@@ -133,7 +140,7 @@ void HttpServer::Run(const RequestHandler& handler)
     }
 }
 
-void HttpServer::Stop()
+void HttpServer::stop()
 {
     m_running.store(false);
     if (m_listenSocket != InvalidSocket)
@@ -143,9 +150,9 @@ void HttpServer::Stop()
     }
 }
 
-void HttpServer::Cleanup()
+void HttpServer::cleanup()
 {
-    Stop();
+    stop();
 #ifdef _WIN32
     if (m_wsaInitialized)
     {

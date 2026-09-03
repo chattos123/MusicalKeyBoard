@@ -92,6 +92,156 @@ body {
 
 .btn-shutdown:hover { background: #b30000; }
 
+/* Header Action Buttons */
+.btn-action {
+    background: #24252d;
+    color: #00d0ff;
+    border: 1px solid #3d4150;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-action:hover {
+    background: #333644;
+    color: #ffffff;
+    border-color: #0099ff;
+}
+
+.modal-close-btn {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0 4px;
+}
+.modal-close-btn:hover { color: #fff; }
+
+.modal-card-large {
+    width: 600px;
+    max-height: 85vh;
+}
+
+.modal-scrollable {
+    overflow-y: auto;
+    max-height: 60vh;
+}
+
+.btn-primary {
+    padding: 6px 16px;
+    background: #007acc;
+    border: 1px solid #0062a3;
+    color: #fff;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.btn-primary:hover { background: #0099ff; }
+
+/* Help Sections & Key Badges */
+.help-section {
+    margin-bottom: 14px;
+}
+
+.help-section h4 {
+    margin: 0 0 6px 0;
+    font-size: 13px;
+    color: #ffaa00;
+}
+
+.key-guide-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 38px 1fr);
+    gap: 6px 10px;
+    align-items: center;
+    background: #15161b;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #282a34;
+    font-size: 11px;
+}
+
+.key-badge {
+    background: #2b2e3a;
+    border: 1px solid #484d60;
+    border-bottom: 2px solid #1c1e26;
+    color: #fff;
+    font-family: 'Consolas', monospace;
+    font-weight: bold;
+    font-size: 11px;
+    border-radius: 4px;
+    text-align: center;
+    padding: 2px 4px;
+}
+
+.help-list {
+    margin: 4px 0 0 16px;
+    padding: 0;
+    font-size: 11.5px;
+    color: #bbb;
+    line-height: 1.5;
+}
+
+/* About Modal Styling */
+.about-body {
+    align-items: center;
+    text-align: center;
+}
+
+.about-icon {
+    font-size: 44px;
+    margin-bottom: -4px;
+}
+
+.about-app-title {
+    margin: 4px 0 2px 0;
+    font-size: 14.5px;
+    color: #fff;
+}
+
+.about-version {
+    font-size: 11px;
+    color: #7d8290;
+    margin: 0;
+}
+
+.about-divider {
+    width: 100%;
+    border: none;
+    border-top: 1px solid #2c2f3c;
+    margin: 10px 0;
+}
+
+.about-info-row {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    font-size: 11.5px;
+    padding: 4px 0;
+}
+
+.about-label { color: #8f93a2; }
+.about-val { color: #00d0ff; font-weight: 600; }
+
+.about-copyright {
+    margin-top: 12px;
+    font-size: 10.5px;
+    color: #888;
+}
+
+.about-subtext {
+    font-size: 9.5px;
+    color: #666;
+    margin-top: 2px;
+}
+
 .panel {
     background: var(--panel);
     padding: 12px 16px;
